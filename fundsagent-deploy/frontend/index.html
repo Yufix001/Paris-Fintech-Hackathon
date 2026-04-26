@@ -1,0 +1,4325 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fundr — Find your EU funding in 3 minutes</title>
+  <meta name="description" content="AI agent that reads your pitch deck and identifies all eligible EU and French funding programmes in minutes. Export a VC-grade financing dossier as PDF.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #08090A;
+      --bg-elev: #0E0F11;
+      --bg-elev2: #131517;
+      --bg-elev3: #1A1C1F;
+      --border: #24262B;
+      --border-soft: #1A1C20;
+      --text: #F0F2F5;
+      --text-muted: #9DA3AC;
+      --text-faint: #6E7480;
+      --accent: #A855F7;
+      --accent-soft: rgba(168, 85, 247, 0.14);
+      --accent-border: rgba(168, 85, 247, 0.35);
+      --accent-gradient: linear-gradient(135deg, #6D28D9 0%, #A855F7 50%, #D946EF 100%);
+      --accent-gradient-hover: linear-gradient(135deg, #7C3AED 0%, #B560F8 50%, #E057F0 100%);
+      --green: #4ADE80;
+      --green-soft: rgba(74, 222, 128, 0.14);
+      --amber: #FBBF24;
+      --amber-soft: rgba(251, 191, 36, 0.14);
+      --blue: #60A5FA;
+      --blue-soft: rgba(96, 165, 250, 0.14);
+      --focus-ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    body {
+      font-family: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      font-feature-settings: "tnum" 1, "ss01" 1;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    /* Skip link for keyboard users */
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 8px;
+      background: var(--accent);
+      color: white;
+      padding: 8px 14px;
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      z-index: 100;
+    }
+
+    .skip-link:focus {
+      top: 8px;
+    }
+
+    /* Universal focus visible */
+    :focus {
+      outline: none;
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+
+    /* Screen reader only */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* ============ TOP NAV ============ */
+    .nav {
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      background: var(--bg);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.2px;
+      text-decoration: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      padding: 0;
+    }
+
+    .nav-logo:hover {
+      opacity: 0.85;
+    }
+
+    .nav-logo-mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      object-fit: cover;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .nav-divider {
+      width: 1px;
+      height: 14px;
+      background: var(--border);
+    }
+
+    .nav-context {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .nav-context-eyebrow {
+      font-size: 11px;
+      color: var(--text-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+
+    .nav-context-label {
+      font-size: 13px;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .nav-actions {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn {
+      background: var(--accent-gradient);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1) inset, 0 4px 12px rgba(168, 85, 247, 0.25);
+      font-family: inherit;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: var(--accent-gradient-hover);
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.15) inset, 0 6px 20px rgba(168, 85, 247, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .btn:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-ghost {
+      background: var(--bg-elev);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-ghost:hover {
+      background: var(--bg-elev2);
+      border-color: #2F3137;
+    }
+
+    /* ============ LAYOUT ============ */
+    .app {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 32px 64px;
+    }
+
+    .page-intro {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .page-title {
+      font-family: "Manrope", sans-serif;
+      font-size: 34px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -1.2px;
+      margin-bottom: 0;
+      line-height: 1.1;
+    }
+
+    .page-title-highlight {
+      font-family: "Instrument Serif", serif;
+      font-style: italic;
+      font-weight: 400;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      position: relative;
+      white-space: nowrap;
+      letter-spacing: -1px;
+    }
+
+    .page-subtitle {
+      font-size: 15px;
+      color: var(--text-muted);
+      max-width: 540px;
+      margin: 0 auto;
+    }
+
+    /* ============ STEPPER ============ */
+    .stepper {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 40px;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .stepper-step {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .stepper-step-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .stepper-bullet {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-faint);
+      flex-shrink: 0;
+      font-variant-numeric: tabular-nums;
+      transition: color 0.3s;
+    }
+
+    .stepper-step.active .stepper-bullet,
+    .stepper-step.done .stepper-bullet {
+      color: var(--text);
+    }
+
+    .stepper-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: color 0.3s;
+    }
+
+    .stepper-step.active .stepper-label,
+    .stepper-step.done .stepper-label {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .stepper-bar {
+      height: 6px;
+      background: var(--bg-elev2);
+      border-radius: 100px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .stepper-bar::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--accent-gradient);
+      border-radius: 100px;
+      transform-origin: left;
+      transform: scaleX(0);
+      transition: transform 0.5s ease-out;
+    }
+
+    .stepper-step.done .stepper-bar::after {
+      transform: scaleX(1);
+    }
+
+    .stepper-step.active .stepper-bar::after {
+      transform: scaleX(1);
+    }
+
+    /* Subtle shimmer on active (pending/in-progress) step */
+    .stepper-step.active .stepper-bar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 25%;
+      background: linear-gradient(90deg,
+          transparent 0%,
+          rgba(255, 255, 255, 0.18) 50%,
+          transparent 100%);
+      border-radius: 100px;
+      z-index: 2;
+      animation: shimmer 2.6s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0% {
+        transform: translateX(200%);
+      }
+
+      100% {
+        transform: translateX(500%);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .stepper-step.active .stepper-bar::before {
+        animation: none;
+        opacity: 0;
+      }
+    }
+
+    /* ============ SCREENS WITH TRANSITION ============ */
+    .screen-container {
+      position: relative;
+    }
+
+    .screen {
+      display: none;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ============ LANDING (SCREEN 0) ============ */
+    .landing {
+      padding: 0;
+    }
+
+    .hero {
+      position: relative;
+      padding: 64px 0 80px;
+      min-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background:
+        radial-gradient(ellipse at 75% 30%, rgba(168, 85, 247, 0.18) 0%, transparent 55%),
+        radial-gradient(ellipse at 25% 70%, rgba(109, 40, 217, 0.10) 0%, transparent 50%);
+      overflow: hidden;
+      margin-bottom: 80px;
+      /* Full-bleed: escape parent's max-width and top padding */
+      margin-top: -32px;
+      margin-left: calc(50% - 50vw);
+      margin-right: calc(50% - 50vw);
+      width: 100vw;
+      border-radius: 0;
+    }
+
+    /* Visual area (top) */
+    .hero-visual {
+      flex: 1;
+      position: relative;
+      min-height: 380px;
+      perspective: 1400px;
+      perspective-origin: 50% 40%;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 0 32px;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .hero-visual-stage {
+      position: relative;
+      width: 100%;
+      max-width: 720px;
+      height: 380px;
+      transform-style: preserve-3d;
+    }
+
+    /* Stacked documents */
+    .hero-doc {
+      position: absolute;
+      width: 380px;
+      height: 280px;
+      border-radius: 14px;
+      background: linear-gradient(160deg, #1A1C20 0%, #131517 100%);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 24px 26px;
+      box-shadow:
+        0 30px 60px -20px rgba(0, 0, 0, 0.7),
+        0 18px 36px -18px rgba(168, 85, 247, 0.15);
+      transform-style: preserve-3d;
+    }
+
+    .hero-doc-back {
+      top: 0;
+      left: 50%;
+      transform: translateX(-58%) rotateX(38deg) rotateY(-22deg) rotateZ(8deg) translateZ(-80px);
+      opacity: 0.55;
+      filter: blur(0.5px);
+    }
+
+    .hero-doc-mid {
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%) rotateX(38deg) rotateY(-22deg) rotateZ(4deg) translateZ(-30px);
+      opacity: 0.85;
+    }
+
+    .hero-doc-front {
+      top: 36px;
+      left: 50%;
+      transform: translateX(-42%) rotateX(38deg) rotateY(-22deg) rotateZ(0deg);
+      background: linear-gradient(160deg, #1F2127 0%, #16181C 100%);
+      border-color: rgba(168, 85, 247, 0.18);
+      overflow: hidden;
+      animation: docFloat 6s ease-in-out infinite;
+    }
+
+    @keyframes docFloat {
+
+      0%,
+      100% {
+        transform: translateX(-42%) rotateX(38deg) rotateY(-22deg) rotateZ(0deg) translateZ(0);
+      }
+
+      50% {
+        transform: translateX(-42%) rotateX(38deg) rotateY(-22deg) rotateZ(0deg) translateZ(12px);
+      }
+    }
+
+    .hero-doc-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #C084FC;
+      background: var(--accent-soft);
+      border: 1px solid var(--accent-border);
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+    }
+
+    .hero-doc-header {
+      height: 12px;
+      width: 50%;
+      background: rgba(255, 255, 255, 0.18);
+      border-radius: 3px;
+      margin-bottom: 14px;
+    }
+
+    .hero-doc-title-bar {
+      height: 14px;
+      width: 80%;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.10));
+      border-radius: 3px;
+      margin-bottom: 16px;
+    }
+
+    .hero-doc-line {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 2px;
+      margin-bottom: 8px;
+    }
+
+    .hero-doc-line.w-50 {
+      width: 50%;
+    }
+
+    .hero-doc-line.w-60 {
+      width: 60%;
+    }
+
+    .hero-doc-line.w-70 {
+      width: 70%;
+    }
+
+    .hero-doc-line.w-80 {
+      width: 80%;
+    }
+
+    .hero-doc-mini-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 14px 0;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+    }
+
+    .hero-doc-stat {
+      text-align: left;
+    }
+
+    .hero-doc-stat-value {
+      font-family: "Manrope", sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.6px;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .hero-doc-stat-accent .hero-doc-stat-value {
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-doc-stat-label {
+      font-size: 10px;
+      color: var(--text-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      font-weight: 500;
+    }
+
+    /* Trust badge floating */
+    .hero-trust-badge {
+      position: absolute;
+      top: 30px;
+      left: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      z-index: 5;
+    }
+
+    .hero-trust-badge-stars {
+      color: #4ADE80;
+      font-size: 14px;
+      letter-spacing: 1px;
+      line-height: 1;
+    }
+
+    .hero-trust-badge-text {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .hero-trust-badge-text strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* Content area (bottom) */
+    .hero-content {
+      padding: 0 32px;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      position: relative;
+      z-index: 4;
+    }
+
+    .hero-title {
+      font-family: "Manrope", sans-serif;
+      font-size: 76px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -2.5px;
+      line-height: 1.02;
+      margin-bottom: 24px;
+    }
+
+    .hero-title-highlight {
+      font-family: "Instrument Serif", serif;
+      font-style: italic;
+      font-weight: 400;
+      letter-spacing: -1.5px;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      white-space: nowrap;
+    }
+
+    .hero-subtitle {
+      font-size: 18px;
+      color: var(--text-muted);
+      max-width: 580px;
+      margin: 0 0 36px;
+      line-height: 1.6;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn-large {
+      padding: 14px 26px;
+      font-size: 15px;
+      font-weight: 600;
+      border-radius: 8px;
+    }
+
+    /* Glowing CTA with shimmer */
+    .btn-glow {
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.15) inset,
+        0 0 0 1px rgba(168, 85, 247, 0.4),
+        0 8px 24px rgba(168, 85, 247, 0.45),
+        0 0 40px rgba(168, 85, 247, 0.25);
+      animation: btnGlow 2.8s ease-in-out infinite;
+    }
+
+    .btn-glow::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 30%;
+      background: linear-gradient(90deg,
+          transparent 0%,
+          rgba(255, 255, 255, 0.28) 50%,
+          transparent 100%);
+      animation: btnShimmer 2.8s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .btn-glow>* {
+      position: relative;
+      z-index: 1;
+    }
+
+    @keyframes btnGlow {
+
+      0%,
+      100% {
+        box-shadow:
+          0 1px 0 rgba(255, 255, 255, 0.15) inset,
+          0 0 0 1px rgba(168, 85, 247, 0.4),
+          0 8px 24px rgba(168, 85, 247, 0.45),
+          0 0 40px rgba(168, 85, 247, 0.25);
+      }
+
+      50% {
+        box-shadow:
+          0 1px 0 rgba(255, 255, 255, 0.2) inset,
+          0 0 0 1px rgba(217, 70, 239, 0.55),
+          0 10px 32px rgba(217, 70, 239, 0.55),
+          0 0 60px rgba(217, 70, 239, 0.35);
+      }
+    }
+
+    @keyframes btnShimmer {
+      0% {
+        transform: translateX(-150%);
+      }
+
+      60% {
+        transform: translateX(450%);
+      }
+
+      100% {
+        transform: translateX(450%);
+      }
+    }
+
+    .btn-glow:hover:not(:disabled) {
+      animation-play-state: paused;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .btn-glow {
+        animation: none;
+      }
+
+      .btn-glow::after {
+        display: none;
+      }
+    }
+
+    .hero-trust {
+      display: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hero-doc-front {
+        animation: none;
+      }
+    }
+
+    /* Stats strip */
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      margin-bottom: 120px;
+    }
+
+    @media (max-width: 700px) {
+      .stats-strip {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 32px 16px;
+      }
+    }
+
+    .stats-strip-item {
+      padding: 24px 20px;
+      text-align: center;
+    }
+
+    .stats-strip-value {
+      font-family: "Manrope", sans-serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -1.5px;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .stats-strip-value.accent {
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .stats-strip-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Section header */
+    .section-header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+
+    .section-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #C084FC;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-family: "Manrope", sans-serif;
+      font-size: 42px;
+      font-weight: 700;
+      letter-spacing: -1.5px;
+      color: var(--text);
+      margin-bottom: 14px;
+      line-height: 1.1;
+    }
+
+    .section-title em {
+      font-family: "Instrument Serif", serif;
+      font-style: italic;
+      font-weight: 400;
+      letter-spacing: -0.5px;
+      color: #C084FC;
+    }
+
+    .section-subtitle {
+      font-size: 15px;
+      color: var(--text-muted);
+      max-width: 560px;
+      margin: 0 auto;
+      line-height: 1.55;
+    }
+
+    /* Value props */
+    .value-props {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 120px;
+    }
+
+    @media (max-width: 800px) {
+      .value-props {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .value-card {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px;
+      transition: all 0.2s;
+    }
+
+    .value-card:hover {
+      border-color: var(--accent-border);
+      transform: translateY(-2px);
+    }
+
+    .value-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: var(--accent-soft);
+      border: 1px solid var(--accent-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+
+    .value-icon svg {
+      width: 22px;
+      height: 22px;
+      stroke: var(--accent);
+      fill: none;
+      stroke-width: 1.8;
+    }
+
+    .value-card h3 {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+      letter-spacing: -0.3px;
+    }
+
+    .value-card p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* Comparison */
+    .comparison {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 120px;
+    }
+
+    .comparison-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    @media (max-width: 700px) {
+      .comparison-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .comparison-col {
+      padding: 32px;
+    }
+
+    .comparison-col.before {
+      background: var(--bg-elev);
+      border-right: 1px solid var(--border-soft);
+    }
+
+    @media (max-width: 700px) {
+      .comparison-col.before {
+        border-right: none;
+        border-bottom: 1px solid var(--border-soft);
+      }
+    }
+
+    .comparison-col.after {
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.06), transparent 70%);
+    }
+
+    .comparison-tag {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .comparison-tag.before {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-muted);
+    }
+
+    .comparison-tag.after {
+      background: var(--accent-soft);
+      color: #C084FC;
+    }
+
+    .comparison-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 18px;
+      letter-spacing: -0.3px;
+    }
+
+    .comparison-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .comparison-list li {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .comparison-list li svg {
+      width: 16px;
+      height: 16px;
+      stroke-width: 2.5;
+      fill: none;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .comparison-list li.bad svg {
+      stroke: #EF4444;
+    }
+
+    .comparison-list li.good svg {
+      stroke: var(--green);
+    }
+
+    /* Final CTA */
+    .final-cta {
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.12), rgba(217, 70, 239, 0.06));
+      border: 1px solid var(--accent-border);
+      border-radius: 16px;
+      padding: 56px 32px;
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .final-cta h2 {
+      font-family: "Manrope", sans-serif;
+      font-size: 44px;
+      font-weight: 700;
+      letter-spacing: -1.5px;
+      color: var(--text);
+      margin-bottom: 14px;
+      line-height: 1.1;
+    }
+
+    .final-cta h2 em {
+      font-family: "Instrument Serif", serif;
+      font-style: italic;
+      font-weight: 400;
+      letter-spacing: -0.5px;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    }
+
+    .final-cta p {
+      font-size: 15px;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+      max-width: 460px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    @media (max-width: 700px) {
+      .hero {
+        padding: 24px 0 48px;
+        min-height: auto;
+        gap: 32px;
+      }
+
+      .hero-visual {
+        min-height: 240px;
+      }
+
+      .hero-visual-stage {
+        height: 240px;
+      }
+
+      .hero-doc {
+        width: 280px;
+        height: 200px;
+        padding: 16px 18px;
+      }
+
+      .hero-trust-badge {
+        top: 16px;
+        left: 16px;
+      }
+
+      .hero-content {
+        padding: 0 16px;
+      }
+
+      .hero-visual {
+        padding: 0 16px;
+      }
+
+      .hero-title {
+        font-size: 38px;
+        letter-spacing: -1.2px;
+      }
+
+      .hero-subtitle {
+        font-size: 15px;
+      }
+
+      .section-title {
+        font-size: 30px;
+        letter-spacing: -1px;
+      }
+
+      .stats-strip {
+        margin-bottom: 72px;
+      }
+
+      .value-props {
+        margin-bottom: 72px;
+      }
+
+      .comparison {
+        margin-bottom: 72px;
+      }
+
+      .final-cta {
+        padding: 40px 24px;
+      }
+
+      .final-cta h2 {
+        font-size: 30px;
+        letter-spacing: -1px;
+      }
+    }
+
+    /* ============ SCREEN 1: UPLOAD ============ */
+    .upload-zone {
+      background: var(--bg-elev);
+      border: 1.5px dashed var(--border);
+      border-radius: 12px;
+      padding: 64px 32px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: block;
+      width: 100%;
+      font-family: inherit;
+      color: inherit;
+      margin-bottom: 16px;
+    }
+
+    .upload-zone:hover,
+    .upload-zone:focus-visible {
+      border-color: var(--accent-border);
+      background: var(--bg-elev2);
+      border-style: solid;
+    }
+
+    .upload-icon-wrap {
+      width: 56px;
+      height: 56px;
+      background: var(--accent-soft);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+    }
+
+    .upload-icon-wrap svg {
+      width: 26px;
+      height: 26px;
+      stroke: var(--accent);
+      fill: none;
+      stroke-width: 1.8;
+    }
+
+    .upload-zone h2 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text);
+      letter-spacing: -0.3px;
+    }
+
+    .upload-zone p {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 24px;
+      max-width: 420px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .formats {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    .format-tag {
+      background: var(--bg-elev2);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .or-paste {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .or-paste a {
+      color: var(--accent);
+      cursor: pointer;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .or-paste a:hover,
+    .or-paste a:focus-visible {
+      text-decoration: underline;
+    }
+
+    .reassurance {
+      display: flex;
+      justify-content: center;
+      gap: 28px;
+      margin-top: 32px;
+      flex-wrap: wrap;
+    }
+
+    .reassurance-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .reassurance-item svg {
+      width: 14px;
+      height: 14px;
+      stroke: var(--green);
+      fill: none;
+      stroke-width: 2.5;
+      flex-shrink: 0;
+    }
+
+    /* Security & Privacy section */
+    .security-section {
+      margin-top: 32px;
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+    }
+
+    .security-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+
+    .security-shield {
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
+      background: var(--green-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .security-shield svg {
+      width: 18px;
+      height: 18px;
+      stroke: var(--green);
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .security-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .security-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .security-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px 24px;
+    }
+
+    @media (max-width: 700px) {
+      .security-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .security-item {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .security-item-icon {
+      width: 18px;
+      height: 18px;
+      color: var(--green);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .security-item-icon svg {
+      width: 100%;
+      height: 100%;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .security-item-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    .security-item-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .security-badges {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-soft);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .security-badges-label {
+      font-size: 11px;
+      color: var(--text-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+      margin-right: 4px;
+    }
+
+    .security-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-elev2);
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .security-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      display: inline-block;
+    }
+
+    /* ============ SCREEN 2: STREAMING ============ */
+    .streaming-screen {
+      display: grid;
+      grid-template-columns: 1fr 1.6fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .streaming-screen {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .deck-preview {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .deck-thumb {
+      background: var(--bg-elev2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      aspect-ratio: 4/3;
+      margin-bottom: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .deck-thumb-page {
+      position: absolute;
+      inset: 0;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .deck-thumb-line {
+      background: var(--border);
+      border-radius: 2px;
+      height: 6px;
+    }
+
+    .deck-thumb-line.title {
+      height: 10px;
+      width: 60%;
+      background: var(--text-faint);
+    }
+
+    .deck-thumb-line.short {
+      width: 40%;
+    }
+
+    .deck-thumb-line.medium {
+      width: 70%;
+    }
+
+    .deck-thumb-scan {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      top: 0;
+      animation: scan 2.5s ease-in-out infinite;
+      box-shadow: 0 0 12px var(--accent);
+    }
+
+    @keyframes scan {
+
+      0%,
+      100% {
+        top: 5%;
+      }
+
+      50% {
+        top: 95%;
+      }
+    }
+
+    .stream-panel {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .stream-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .stream-status {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 1.6s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.5);
+      }
+
+      70% {
+        box-shadow: 0 0 0 8px rgba(168, 85, 247, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(168, 85, 247, 0);
+      }
+    }
+
+    .stream-status.done {
+      background: var(--green);
+      animation: none;
+    }
+
+    .stream-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      transition: color 0.4s;
+    }
+
+    .stream-title.done {
+      color: var(--green);
+    }
+
+    /* Check icon for completion state */
+    .stream-check {
+      margin-left: auto;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--bg);
+      opacity: 0;
+      transform: scale(0.4);
+      transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .stream-check svg {
+      width: 13px;
+      height: 13px;
+    }
+
+    .stream-check.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* Panel-level success animation */
+    .stream-panel {
+      transition: border-color 0.4s, box-shadow 0.4s;
+    }
+
+    .stream-panel.done {
+      border-color: rgba(74, 222, 128, 0.45);
+      box-shadow: 0 0 0 1px rgba(74, 222, 128, 0.15), 0 8px 32px rgba(74, 222, 128, 0.08);
+      animation: successFlash 0.7s ease-out;
+    }
+
+    @keyframes successFlash {
+      0% {
+        box-shadow: 0 0 0 0 rgba(74, 222, 128, 0);
+      }
+
+      40% {
+        box-shadow: 0 0 0 8px rgba(74, 222, 128, 0.18), 0 8px 32px rgba(74, 222, 128, 0.15);
+      }
+
+      100% {
+        box-shadow: 0 0 0 1px rgba(74, 222, 128, 0.15), 0 8px 32px rgba(74, 222, 128, 0.08);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .stream-panel.done {
+        animation: none;
+      }
+
+      .stream-check {
+        transition: opacity 0.2s;
+        transform: scale(1);
+      }
+    }
+
+    .stream-step {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-soft);
+      opacity: 0.4;
+      transition: opacity 0.3s;
+    }
+
+    .stream-step:last-child {
+      border-bottom: none;
+    }
+
+    .stream-step.active,
+    .stream-step.done {
+      opacity: 1;
+    }
+
+    .stream-step-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .stream-step.active .stream-step-head,
+    .stream-step.done .stream-step-head {
+      margin-bottom: 12px;
+    }
+
+    .step-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--bg-elev2);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 10px;
+      color: var(--text-faint);
+      font-weight: 600;
+    }
+
+    .step-icon.active {
+      background: var(--accent-soft);
+      border-color: var(--accent-border);
+      color: var(--accent);
+    }
+
+    .step-icon.done {
+      background: var(--green-soft);
+      border-color: rgba(74, 222, 128, 0.3);
+      color: var(--green);
+    }
+
+    .step-spinner {
+      width: 10px;
+      height: 10px;
+      border: 1.5px solid var(--accent-soft);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .step-time {
+      margin-left: auto;
+      font-size: 11px;
+      color: var(--text-faint);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .step-result {
+      padding-left: 30px;
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      opacity: 0;
+      animation: stepResultIn 0.3s ease-out forwards;
+    }
+
+    @keyframes stepResultIn {
+      from {
+        opacity: 0;
+        transform: translateY(-2px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .step-result strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .step-result .accent {
+      color: #C084FC;
+      font-weight: 500;
+    }
+
+    .step-result .green {
+      color: var(--green);
+      font-weight: 500;
+    }
+
+    /* Mini security bar shown during streaming */
+    .mini-security {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 24px;
+      margin-top: 20px;
+      padding: 12px 18px;
+      flex-wrap: wrap;
+    }
+
+    .mini-security-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .mini-security-item svg {
+      width: 13px;
+      height: 13px;
+      stroke: var(--green);
+      fill: none;
+      stroke-width: 2.5;
+      flex-shrink: 0;
+    }
+
+    .mini-security-item strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    /* ============ SCREEN 3: ANALYSIS ============ */
+    .deck-banner {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .deck-banner-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .deck-banner-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--accent-soft);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .deck-banner-icon svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .deck-banner-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .deck-banner-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .score-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 800px) {
+      .score-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .stat-card {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      font-weight: 500;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1;
+      letter-spacing: -1px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat-value small {
+      font-size: 16px;
+      color: var(--text-faint);
+      font-weight: 500;
+      letter-spacing: 0;
+    }
+
+    .stat-value.accent {
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .stat-value.green {
+      color: var(--green);
+    }
+
+    .stat-bar {
+      height: 4px;
+      background: var(--bg-elev2);
+      border-radius: 2px;
+      margin-top: 14px;
+      overflow: hidden;
+    }
+
+    .stat-bar-fill {
+      height: 100%;
+      background: var(--accent-gradient);
+      border-radius: 2px;
+      transform-origin: left;
+      animation: barFill 1s ease-out;
+    }
+
+    @keyframes barFill {
+      from {
+        transform: scaleX(0);
+      }
+
+      to {
+        transform: scaleX(1);
+      }
+    }
+
+    .stat-bar-fill.green {
+      background: var(--green);
+    }
+
+    .stat-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 10px;
+    }
+
+    .stat-sub .green {
+      color: var(--green);
+      font-weight: 500;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .panel-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-title-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .panel-title-icon.green {
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .panel-title-icon.amber {
+      background: var(--amber-soft);
+      color: var(--amber);
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border-soft);
+      font-size: 13px;
+    }
+
+    .row:last-child {
+      border-bottom: none;
+    }
+
+    .row .label {
+      color: var(--text-muted);
+    }
+
+    .row .value {
+      font-weight: 500;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .tag-group {
+      margin-bottom: 14px;
+    }
+
+    .tag-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .tag-group-label {
+      font-size: 11px;
+      color: var(--text-faint);
+      margin-bottom: 8px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .tag {
+      display: inline-flex;
+      padding: 3px 9px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      margin-right: 5px;
+      margin-bottom: 5px;
+      border: 1px solid;
+    }
+
+    .strength-row {
+      display: grid;
+      grid-template-columns: 20px 1fr;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-soft);
+      align-items: start;
+    }
+
+    .strength-row:last-of-type {
+      border-bottom: none;
+    }
+
+    .strength-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      margin-top: 1px;
+    }
+
+    .strength-icon.check {
+      background: var(--green);
+      color: var(--bg);
+    }
+
+    .strength-icon.warn-icon {
+      background: var(--amber);
+      color: var(--bg);
+    }
+
+    .strength-text {
+      font-size: 13px;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .strength-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .insight {
+      background: var(--accent-soft);
+      border: 1px solid var(--accent-border);
+      border-radius: 8px;
+      padding: 14px;
+      margin-top: 14px;
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .insight-title {
+      font-weight: 600;
+      color: #C084FC;
+      margin-bottom: 6px;
+      font-size: 11px;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* ============ SCREEN 4: FUNDING ============ */
+    .chart-card {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 28px 32px;
+      margin-bottom: 16px;
+    }
+
+    .chart-row {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 40px;
+      align-items: center;
+    }
+
+    @media (max-width: 800px) {
+      .chart-row {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        justify-items: center;
+      }
+    }
+
+    .donut-wrap {
+      position: relative;
+      width: 280px;
+      height: 280px;
+      flex-shrink: 0;
+    }
+
+    .donut-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      text-align: center;
+    }
+
+    .donut-center-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .donut-center-value {
+      font-size: 56px;
+      font-weight: 700;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+      letter-spacing: -2.5px;
+      font-variant-numeric: tabular-nums;
+      display: inline-flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .donut-center-value small {
+      font-size: 22px;
+      -webkit-text-fill-color: var(--text-muted);
+      color: var(--text-muted);
+      font-weight: 500;
+      letter-spacing: -0.3px;
+    }
+
+    .donut-center-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    .donut-center-sub strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .donut-legend {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      width: 100%;
+    }
+
+    .legend-item {
+      display: grid;
+      grid-template-columns: 8px minmax(0, 1fr) auto;
+      gap: 14px;
+      align-items: center;
+      padding: 12px 8px;
+      border-radius: 6px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+
+    .legend-item:last-child {
+      border-bottom: none;
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+    }
+
+    .legend-text .name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 5px;
+    }
+
+    .legend-text-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .legend-bar {
+      height: 3px;
+      background: var(--bg-elev2);
+      border-radius: 2px;
+      overflow: hidden;
+      flex: 1;
+      max-width: 120px;
+    }
+
+    .legend-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+    }
+
+    .legend-text .desc {
+      font-size: 11px;
+      color: var(--text-faint);
+      white-space: nowrap;
+    }
+
+    .legend-amount {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      text-align: right;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .legend-amount .pct {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .funding-list {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .list-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 40px;
+      margin-bottom: 20px;
+      padding: 0 4px;
+    }
+
+    .list-toolbar-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.2px;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .list-toolbar-count {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      padding: 1px 8px;
+      border-radius: 100px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .list-toolbar-filters {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .list-toolbar-filter-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-right: 4px;
+      font-weight: 500;
+    }
+
+    .filter-pill {
+      padding: 5px 12px;
+      font-size: 12px;
+      border: 1px solid transparent;
+      background: transparent;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-weight: 500;
+      border-radius: 5px;
+      font-family: inherit;
+    }
+
+    .filter-pill:hover {
+      background: var(--bg-elev2);
+      color: var(--text);
+    }
+
+    .filter-pill.active {
+      background: var(--accent-soft);
+      color: #C084FC;
+      border-color: var(--accent-border);
+    }
+
+    .table-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 130px 100px 90px 110px;
+      padding: 10px 18px;
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--text-faint);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .funding-row {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-soft);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 130px 100px 90px 110px;
+      gap: 14px;
+      align-items: center;
+      transition: background 0.1s;
+    }
+
+    .funding-row:last-child {
+      border-bottom: none;
+    }
+
+    .funding-row:hover {
+      background: var(--bg-elev2);
+    }
+
+    .funding-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 10px;
+    }
+
+    .funding-icon.grant {
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .funding-icon.public {
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    .funding-icon.vc {
+      background: var(--accent-soft);
+      color: #C084FC;
+    }
+
+    .funding-icon.loan {
+      background: var(--amber-soft);
+      color: var(--amber);
+    }
+
+    .funding-info .name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    .funding-info .meta {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .funding-amount {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      text-align: right;
+      line-height: 1.2;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .funding-amount .sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 400;
+      display: block;
+      margin-top: 2px;
+    }
+
+    .match-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 5px;
+    }
+
+    .match-pct {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--green);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .match-pct.medium {
+      color: var(--amber);
+    }
+
+    .match-bar {
+      height: 2px;
+      background: var(--bg-elev2);
+      border-radius: 1px;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .match-bar-fill {
+      height: 100%;
+      background: var(--green);
+      border-radius: 1px;
+    }
+
+    .match-bar-fill.medium {
+      background: var(--amber);
+    }
+
+    .delay-cell {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .funding-cta {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      width: 100%;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+
+    .funding-cta:hover {
+      background: var(--accent-gradient);
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+    }
+
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    @media (max-width: 700px) {
+      .stepper {
+        gap: 8px;
+      }
+
+      .stepper-label {
+        font-size: 12px;
+      }
+
+      .table-head,
+      .funding-row {
+        grid-template-columns: 1fr auto;
+      }
+
+      .table-head .col-hide,
+      .funding-row .col-hide {
+        display: none;
+      }
+
+      .app {
+        padding: 20px 16px 48px;
+      }
+
+      .page-title {
+        font-size: 24px;
+        letter-spacing: -0.6px;
+      }
+    }
+
+    /* ============ PRINT / PDF EXPORT ============ */
+    @media print {
+      * { -webkit-print-color-adjust: exact !important; color-adjust: exact !important; }
+      body { background: #fff !important; color: #111 !important; font-size: 11pt; }
+      .nav, #flow-header, .landing, #screen-1, #screen-2, .actions, .list-toolbar-filters,
+      .mini-security, .hero, .stats-strip, .value-props, .comparison, .security-section,
+      .final-cta, .skip-link, #fa-input-zone, #fa-ask, #btn-export-pdf { display: none !important; }
+      .screen { display: block !important; page-break-inside: avoid; }
+      #screen-3, #screen-4 { display: block !important; }
+      .app { max-width: 100%; padding: 0; margin: 0; }
+      .chart-card { background: #f9f9f9 !important; border: 1px solid #ddd !important; }
+      .panel { background: #f9f9f9 !important; border: 1px solid #ddd !important; }
+      .funding-list { background: #fff !important; }
+      .funding-row { border-color: #ddd !important; }
+      .deck-banner { background: #1a0036 !important; color: #fff !important; }
+      .deck-banner-name { color: #fff !important; }
+      .match-bar, .match-bar-fill { background: #6d28d9 !important; }
+      .funding-cta, .btn-ghost { display: none !important; }
+      .col-hide { display: block !important; }
+      h1, h2, h3 { color: #111 !important; }
+      a { color: #6d28d9 !important; }
+      @page { margin: 18mm; size: A4; }
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <a href="#main" class="skip-link">Aller au contenu principal</a>
+
+  <header class="nav" role="banner">
+    <button type="button" class="nav-logo" onclick="goToStep(0)" aria-label="Retour à l'accueil">
+      <img src="/static/logo.jpeg" class="nav-logo-mark" alt="">
+      <span>Fundr</span>
+    </button>
+    <span class="nav-divider" id="nav-divider" aria-hidden="true" style="display:none;"></span>
+    <div class="nav-context" id="nav-breadcrumb" style="display:none;">
+      <span class="nav-context-eyebrow">Projet</span>
+      <span class="nav-context-label" id="nav-company-label">Your project</span>
+    </div>
+    <div class="nav-actions">
+      <button class="btn-ghost" onclick="resetDemo()" aria-label="Réinitialiser la démo">Reset</button>
+    </div>
+  </header>
+
+  <main class="app" id="main">
+
+    <!-- ============ ÉTAPE 0 : LANDING PAGE ============ -->
+    <section class="screen active landing" id="screen-0" aria-labelledby="hero-title" role="region">
+
+      <div class="hero">
+        <div class="hero-visual" aria-hidden="true">
+          <div class="hero-visual-stage">
+            <div class="hero-doc hero-doc-back">
+              <div class="hero-doc-header"></div>
+              <div class="hero-doc-line w-80"></div>
+              <div class="hero-doc-line w-60"></div>
+              <div class="hero-doc-line w-70"></div>
+              <div class="hero-doc-line w-50"></div>
+            </div>
+            <div class="hero-doc hero-doc-mid">
+              <div class="hero-doc-header"></div>
+              <div class="hero-doc-line w-80"></div>
+              <div class="hero-doc-line w-60"></div>
+              <div class="hero-doc-line w-70"></div>
+              <div class="hero-doc-line w-50"></div>
+            </div>
+            <div class="hero-doc hero-doc-front">
+              <div class="hero-doc-tag">Pitch deck</div>
+              <div class="hero-doc-title-bar"></div>
+              <div class="hero-doc-line w-80"></div>
+              <div class="hero-doc-line w-60"></div>
+              <div class="hero-doc-mini-grid">
+                <div class="hero-doc-stat">
+                  <div class="hero-doc-stat-value">812</div>
+                  <div class="hero-doc-stat-label">programmes</div>
+                </div>
+                <div class="hero-doc-stat hero-doc-stat-accent">
+                  <div class="hero-doc-stat-value">5,8 M€</div>
+                  <div class="hero-doc-stat-label">éligibles</div>
+                </div>
+              </div>
+              <div class="hero-doc-line w-70"></div>
+              <div class="hero-doc-line w-50"></div>
+            </div>
+          </div>
+          <div class="hero-trust-badge">
+            <span class="hero-trust-badge-stars" aria-hidden="true">★★★★★</span>
+            <span class="hero-trust-badge-text"><strong>4.9/5</strong> sur Trustpilot</span>
+          </div>
+        </div>
+
+        <div class="hero-content">
+          <h1 class="hero-title" id="hero-title">
+            Find your EU funding<br>in 3 minutes.
+          </h1>
+          <p class="hero-subtitle">
+            Replace your funding consultant with an AI agent that identifies all eligible programmes from your pitch deck.
+          </p>
+          <div class="hero-ctas">
+            <button type="button" class="btn btn-large btn-glow" onclick="goToStep(1)">Get started free <span
+                aria-hidden="true">→</span></button>
+            <button type="button" class="btn-ghost btn-large"
+              onclick="document.getElementById('how-it-works').scrollIntoView({behavior:'smooth'})">See how it works</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats strip -->
+      <div class="stats-strip" role="list" aria-label="Key stats">
+        <div class="stats-strip-item" role="listitem">
+          <div class="stats-strip-value accent">37+</div>
+          <div class="stats-strip-label">Programmes covered</div>
+        </div>
+        <div class="stats-strip-item" role="listitem">
+          <div class="stats-strip-value">3 min</div>
+          <div class="stats-strip-label">For your full diagnostic</div>
+        </div>
+        <div class="stats-strip-item" role="listitem">
+          <div class="stats-strip-value">−85%</div>
+          <div class="stats-strip-label">vs funding consultant</div>
+        </div>
+        <div class="stats-strip-item" role="listitem">
+          <div class="stats-strip-value">€5.8M</div>
+          <div class="stats-strip-label">Median funding detected</div>
+        </div>
+      </div>
+
+      <!-- Value props -->
+      <div id="how-it-works" class="section-header">
+        <div class="section-eyebrow">How it works</div>
+        <h2 class="section-title">Three steps. Zero paperwork.</h2>
+        <p class="section-subtitle">Our AI does in minutes what a funding consultant takes 3 weeks to deliver.</p>
+      </div>
+
+      <div class="value-props">
+        <article class="value-card">
+          <div class="value-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+          </div>
+          <h3>Upload your deck</h3>
+          <p>Drag and drop your pitch deck or paste plain text. The AI automatically extracts sector, traction, team, and tech stack.</p>
+        </article>
+        <article class="value-card">
+          <div class="value-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="3" />
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
+          </div>
+          <h3>AI matches your project</h3>
+          <p>Specialised AI agents cross-reference your profile with 37+ EU and French programmes and compute an eligibility score for each.</p>
+        </article>
+        <article class="value-card">
+          <div class="value-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+            </svg>
+          </div>
+          <h3>Export & apply in one click</h3>
+          <p>For each matched programme, get a pre-filled VC-grade dossier. Download as PDF and submit directly.</p>
+        </article>
+      </div>
+
+      <!-- Comparison Before/After -->
+      <div class="section-header">
+        <div class="section-eyebrow">Why now</div>
+        <h2 class="section-title">Funding consulting hasn't changed in 20 years</h2>
+        <p class="section-subtitle">Expensive, slow, opaque. We replace the consultant with an AI agent.</p>
+      </div>
+
+      <div class="comparison">
+        <div class="comparison-row">
+          <div class="comparison-col before">
+            <span class="comparison-tag before">Before</span>
+            <h3 class="comparison-title">With a consulting firm</h3>
+            <ul class="comparison-list">
+              <li class="bad">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+                <span><strong style="color:var(--text)">€15k–€50k</strong> retainer + 8–15% success fee</span>
+              </li>
+              <li class="bad">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+                <span><strong style="color:var(--text)">3–6 weeks</strong> to receive a first list of programmes</span>
+              </li>
+              <li class="bad">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+                <span>Coverage limited to what your consultant knows</span>
+              </li>
+              <li class="bad">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+                <span>You re-explain your project from scratch at every meeting</span>
+              </li>
+            </ul>
+          </div>
+          <div class="comparison-col after">
+            <span class="comparison-tag after">With FundsAgent</span>
+            <h3 class="comparison-title">Your dedicated AI agent</h3>
+            <ul class="comparison-list">
+              <li class="good">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                <span><strong style="color:var(--text)">Free to try</strong>, no success fee</span>
+              </li>
+              <li class="good">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                <span><strong style="color:var(--text)">3 minutes</strong> for a complete personalised diagnostic</span>
+              </li>
+              <li class="good">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                <span><strong style="color:var(--text)">37 programmes</strong> EU &amp; France, continuously updated</span>
+              </li>
+              <li class="good">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                <span>Your project understood once, leveraged everywhere</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Security section -->
+      <div class="section-header">
+        <div class="section-eyebrow">Security</div>
+        <h2 class="section-title">Your pitch deck stays yours</h2>
+        <p class="section-subtitle">Bank-grade confidentiality, European hosting, zero AI training on your data.</p>
+      </div>
+
+      <section class="security-section" aria-labelledby="security-title-landing">
+        <header class="security-header">
+          <span class="security-shield" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              <path d="m9 12 2 2 4-4" />
+            </svg>
+          </span>
+          <div>
+            <div class="security-title" id="security-title-landing">Your data stays confidential</div>
+            <div class="security-subtitle">GDPR compliant · European hosting · No third-party sharing</div>
+          </div>
+        </header>
+
+        <div class="security-grid" role="list">
+          <div class="security-item" role="listitem">
+            <span class="security-item-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <rect x="3" y="11" width="18" height="11" rx="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+            </span>
+            <div>
+              <div class="security-item-title">End-to-end encryption</div>
+              <div class="security-item-desc">TLS 1.3 in transit, AES-256 at rest. Bank-grade standard.</div>
+            </div>
+          </div>
+
+          <div class="security-item" role="listitem">
+            <span class="security-item-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M2 12h20" />
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+              </svg>
+            </span>
+            <div>
+              <div class="security-item-title">100% European hosting</div>
+              <div class="security-item-desc">Data hosted in France on Google Cloud Run (europe-west1).</div>
+            </div>
+          </div>
+
+          <div class="security-item" role="listitem">
+            <span class="security-item-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M3 3h18v18H3z" />
+                <path d="M9 9h6v6H9z" />
+              </svg>
+            </span>
+            <div>
+              <div class="security-item-title">Zero AI training</div>
+              <div class="security-item-desc">Your pitch deck is never used to train AI models.</div>
+            </div>
+          </div>
+
+          <div class="security-item" role="listitem">
+            <span class="security-item-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+            </span>
+            <div>
+              <div class="security-item-title">Delete anytime</div>
+              <div class="security-item-desc">Documents deleted within 24h or immediately on request (GDPR art. 17).</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="security-badges" aria-label="Certifications">
+          <span class="security-badges-label">Compliance</span>
+          <span class="security-badge">GDPR</span>
+          <span class="security-badge">SOC 2 Type II</span>
+          <span class="security-badge">ISO 27001</span>
+          <span class="security-badge">EU Hosting</span>
+        </div>
+      </section>
+
+      <!-- Final CTA -->
+      <div class="final-cta" style="margin-top: 120px;">
+        <h2>Ready to find your funding?</h2>
+        <p>Upload your pitch deck and get your personalised diagnostic in under 3 minutes.</p>
+        <button type="button" class="btn btn-large" onclick="goToStep(1)">Start my analysis <span
+            aria-hidden="true">→</span></button>
+      </div>
+
+    </section>
+
+    <!-- Stepper (hidden on landing) -->
+    <div id="flow-header" style="display: none;">
+      <div class="page-intro" id="page-intro">
+        <h1 class="page-title">Find your funding in 3 minutes</h1>
+      </div>
+
+      <nav class="stepper" aria-label="Steps" role="navigation">
+        <div class="stepper-step active" id="stepper-1" aria-current="step">
+          <div class="stepper-step-head">
+            <span class="stepper-bullet" aria-hidden="true">1</span>
+            <span class="stepper-label">Upload</span>
+          </div>
+          <div class="stepper-bar" aria-hidden="true"></div>
+        </div>
+        <div class="stepper-step" id="stepper-2">
+          <div class="stepper-step-head">
+            <span class="stepper-bullet" aria-hidden="true">2</span>
+            <span class="stepper-label">Analyse</span>
+          </div>
+          <div class="stepper-bar" aria-hidden="true"></div>
+        </div>
+        <div class="stepper-step" id="stepper-3">
+          <div class="stepper-step-head">
+            <span class="stepper-bullet" aria-hidden="true">3</span>
+            <span class="stepper-label">Diagnostic</span>
+          </div>
+          <div class="stepper-bar" aria-hidden="true"></div>
+        </div>
+        <div class="stepper-step" id="stepper-4">
+          <div class="stepper-step-head">
+            <span class="stepper-bullet" aria-hidden="true">4</span>
+            <span class="stepper-label">Funding</span>
+          </div>
+          <div class="stepper-bar" aria-hidden="true"></div>
+        </div>
+      </nav>
+    </div>
+
+    <div class="screen-container" aria-live="polite" aria-atomic="false">
+
+      <!-- ============ ÉTAPE 1 : UPLOAD ============ -->
+      <section class="screen" id="screen-1" aria-labelledby="step1-title" role="region">
+        <h2 id="step1-title" class="sr-only">Étape 1 : Importer votre pitch deck</h2>
+
+        <input id="main-file-input" type="file" accept=".pdf,.pptx" style="display:none;" aria-label="Select your pitch deck">
+        <label for="main-file-input" class="upload-zone" id="upload-zone-label" tabindex="0" role="button"
+          aria-describedby="upload-help"
+          ondragover="event.preventDefault();this.style.borderColor='var(--accent)';this.style.background='var(--bg-elev2)';"
+          ondragleave="this.style.borderColor='';this.style.background='';"
+          ondrop="event.preventDefault();this.style.borderColor='';this.style.background='';window.handleMainFileSelect(event.dataTransfer.files[0]);">
+          <div class="upload-icon-wrap" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+          </div>
+          <h3 id="upload-zone-title" style="font-size: 20px; font-weight: 600; margin-bottom: 8px; color: var(--text); letter-spacing: -0.3px;">
+            Upload your pitch deck</h3>
+          <p id="upload-help" style="margin-bottom:0;">Drag &amp; drop your file or click to select it.<br>AI analysis starts automatically.</p>
+          <span class="btn" role="presentation" style="margin-top:18px;">Select a PDF / PPTX file</span>
+          <div class="formats" aria-label="Accepted formats" style="margin-top:16px;">
+            <span class="format-tag">.pdf</span>
+            <span class="format-tag">.pptx</span>
+            <span class="format-tag">≤ 50 MB</span>
+          </div>
+        </label>
+
+        <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-top: 28px; margin-bottom: 12px;">
+          Your pitch deck is protected. No information is shared with third parties.
+        </p>
+
+        <div class="mini-security" role="note" aria-label="Privacy guarantees">
+          <span class="mini-security-item">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+            Encrypted <strong>TLS 1.3</strong>
+          </span>
+          <span class="mini-security-item">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M2 12h20" />
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+            </svg>
+            Hosted in <strong>Europe</strong>
+          </span>
+          <span class="mini-security-item">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 3h18v18H3z" />
+              <path d="M9 9h6v6H9z" />
+            </svg>
+            <strong>Zero</strong> AI training
+          </span>
+          <span class="mini-security-item">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            <strong>GDPR</strong> compliant
+          </span>
+          <span class="mini-security-item">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+            Deleted within <strong>24h</strong>
+          </span>
+        </div>
+      </section>
+
+      <!-- ============ STEP 2: ANALYSIS STREAM ============ -->
+      <section class="screen" id="screen-2" aria-labelledby="step2-title" role="region">
+        <h2 id="step2-title" class="sr-only">Step 2: Analysis in progress</h2>
+
+        <div class="streaming-screen">
+          <div class="deck-preview">
+            <div
+              style="font-size: 11px; color: var(--text-faint); margin-bottom: 10px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">
+              Pitch deck</div>
+            <div class="deck-thumb" aria-hidden="true">
+              <div class="deck-thumb-page">
+                <div class="deck-thumb-line title"></div>
+                <div class="deck-thumb-line short"></div>
+                <div style="height: 12px;"></div>
+                <div class="deck-thumb-line"></div>
+                <div class="deck-thumb-line medium"></div>
+                <div class="deck-thumb-line"></div>
+                <div class="deck-thumb-line short"></div>
+                <div style="height: 8px;"></div>
+                <div class="deck-thumb-line"></div>
+                <div class="deck-thumb-line medium"></div>
+              </div>
+              <div class="deck-thumb-scan"></div>
+            </div>
+            <div id="deck-preview-name" style="font-size: 13px; font-weight: 600; color: var(--text);">—</div>
+            <div id="deck-preview-meta" style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">en attente d'upload</div>
+          </div>
+
+          <div class="stream-panel" role="status" aria-live="polite" aria-atomic="false">
+            <div class="stream-header">
+              <span class="stream-status" id="stream-status" aria-hidden="true"></span>
+              <span class="stream-title" id="stream-title">Analyse en cours…</span>
+              <span class="stream-check" id="stream-check" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              </span>
+            </div>
+
+            <div class="stream-step" id="step-1">
+              <div class="stream-step-head">
+                <span class="step-icon active" id="icon-1" aria-hidden="true"><span class="step-spinner"></span></span>
+                <span>Extracting company profile</span>
+              </div>
+              <div class="step-result" id="extract-1"></div>
+            </div>
+
+            <div class="stream-step" id="step-2">
+              <div class="stream-step-head">
+                <span class="step-icon" id="icon-2" aria-hidden="true">2</span>
+                <span>Thematic classification</span>
+              </div>
+              <div class="step-result" id="extract-2"></div>
+            </div>
+
+            <div class="stream-step" id="step-3">
+              <div class="stream-step-head">
+                <span class="step-icon" id="icon-3" aria-hidden="true">3</span>
+                <span>Eligibility reasoning</span>
+              </div>
+              <div class="step-result" id="extract-3"></div>
+            </div>
+
+            <div class="stream-step" id="step-4">
+              <div class="stream-step-head">
+                <span class="step-icon" id="icon-4" aria-hidden="true">4</span>
+                <span>Matching eligible programmes</span>
+              </div>
+              <div class="step-result" id="extract-4"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mini-security" role="note" aria-label="Privacy guarantees">
+          <span class="mini-security-item">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+            Encrypted <strong>TLS 1.3</strong>
+          </span>
+          <span class="mini-security-item">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M2 12h20" />
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+            </svg>
+            Hosted in <strong>Europe</strong>
+          </span>
+          <span class="mini-security-item">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 3h18v18H3z" />
+              <path d="M9 9h6v6H9z" />
+            </svg>
+            <strong>Zero</strong> AI training
+          </span>
+          <span class="mini-security-item">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            <strong>GDPR</strong> compliant
+          </span>
+        </div>
+      </section>
+
+      <!-- ============ STEP 3: DIAGNOSTIC ============ -->
+      <section class="screen" id="screen-3" aria-labelledby="step3-title" role="region">
+        <h2 id="step3-title" class="sr-only">Step 3: Project Diagnostic</h2>
+
+        <!-- Banner: file name + re-upload button + download original pitch deck -->
+        <div class="deck-banner">
+          <div class="deck-banner-info">
+            <span class="deck-banner-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+              </svg>
+            </span>
+            <div>
+              <div class="deck-banner-name" id="banner-filename">No file uploaded yet</div>
+              <div class="deck-banner-meta" id="banner-meta">Upload a pitch deck to start the AI analysis</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <!-- Re-upload a new deck and re-run the full AI analysis -->
+            <input id="reupload-file-input" type="file" accept=".pdf,.pptx" style="display:none;" aria-label="Re-upload pitch deck">
+            <button type="button" class="btn-ghost" id="btn-reupload"
+              onclick="document.getElementById('reupload-file-input').click()"
+              title="Upload a new pitch deck and re-run the analysis">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true" style="margin-right:4px;">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>Re-upload deck
+            </button>
+            <!-- Opens the original file the user uploaded (blob URL for PDF, or shows name) -->
+            <button type="button" class="btn-ghost" id="btn-voir-pdf" onclick="window.ouvrirPDF()" style="display:none;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true" style="margin-right:4px;">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>Download Pitch Deck
+            </button>
+          </div>
+        </div>
+
+        <!-- Profile & Tags: 100% populated by populateDiagnostic() on 'parsed' + 'matched' SSE events -->
+        <div class="grid-2">
+          <div class="panel" id="diag-panel-profile">
+            <div class="panel-title">
+              <span class="panel-title-icon" aria-hidden="true">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                </svg>
+              </span>Detected Profile
+            </div>
+            <div id="diag-profile-body">
+              <div style="color:var(--text-faint);font-size:13px;padding:12px 0;">
+                <span style="animation:pulse 1.5s infinite;display:inline-block;">⏳</span>
+                Upload a pitch deck to generate your AI diagnostic…
+              </div>
+            </div>
+          </div>
+
+          <div class="panel" id="diag-panel-tags">
+            <div class="panel-title">
+              <span class="panel-title-icon" aria-hidden="true">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <circle cx="12" cy="12" r="10"/>
+                  <circle cx="12" cy="12" r="6"/>
+                  <circle cx="12" cy="12" r="2"/>
+                </svg>
+              </span>Identified Tags
+            </div>
+            <div id="diag-tags-body">
+              <div style="color:var(--text-faint);font-size:13px;padding:12px 0;">
+                Tags detected by the AI will appear here…
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Strengths & Warnings: populated by populateDiagnostic() -->
+        <div class="grid-2">
+          <div class="panel" id="diag-panel-strengths">
+            <div class="panel-title">
+              <span class="panel-title-icon green" aria-hidden="true">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </span>Top Eligible Programmes
+            </div>
+            <ul style="list-style:none;" id="diag-strengths-body">
+              <li style="color:var(--text-faint);font-size:13px;padding:8px 0;">Best-fit programmes will appear after the analysis…</li>
+            </ul>
+          </div>
+
+          <div class="panel" id="diag-panel-warnings">
+            <div class="panel-title">
+              <span class="panel-title-icon amber" aria-hidden="true">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+              </span>Points to Strengthen
+            </div>
+            <ul style="list-style:none;" id="diag-warnings-body">
+              <li style="color:var(--text-faint);font-size:13px;padding:8px 0;">Eligibility improvement hints will appear here…</li>
+            </ul>
+            <div class="insight" role="note" id="diag-insight" style="display:none;">
+              <div class="insight-title">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                </svg>
+                AI Insight
+              </div>
+              <div id="diag-insight-text"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn-ghost" onclick="goToStep(1)"><span aria-hidden="true">←</span> Back</button>
+          <button type="button" class="btn" onclick="goToStep(4)">View my funding <span aria-hidden="true">→</span></button>
+        </div>
+      </section>
+
+      <!-- ============ STEP 4: FUNDING ============ -->
+      <section class="screen" id="screen-4" aria-labelledby="step4-title" role="region">
+        <h2 id="step4-title" class="sr-only">Step 4: Eligible Funding Programmes</h2>
+
+        <div class="chart-card">
+          <div class="chart-row">
+            <div class="donut-wrap">
+              <canvas id="donut" role="img" aria-label="Funding breakdown by source">Loading…</canvas>
+              <div class="donut-center" aria-hidden="true">
+                <div class="donut-center-label" id="donut-label">Total eligible</div>
+                <div class="donut-center-value" id="donut-value">&mdash;<small>M€</small></div>
+                <div class="donut-center-sub" id="donut-sub">non-dilutive</div>
+              </div>
+            </div>
+            <div class="donut-legend" role="list" aria-label="Détail par catégorie">
+              <div class="legend-item" role="listitem" id="legend-eu">
+                <span class="legend-dot" style="background: #4ADE80;" aria-hidden="true"></span>
+                <div class="legend-text">
+                  <div class="name">EU Grants</div>
+                  <div class="legend-text-bar">
+                    <div class="legend-bar" aria-hidden="true">
+                      <div class="legend-bar-fill" style="width: 24%; background: #4ADE80;"></div>
+                    </div>
+                    <span class="desc" id="legend-eu-count">—</span>
+                  </div>
+                </div>
+                <div class="legend-amount" id="legend-eu-amount">—</div>
+              </div>
+              <div class="legend-item" role="listitem" id="legend-fr">
+                <span class="legend-dot" style="background: #60A5FA;" aria-hidden="true"></span>
+                <div class="legend-text">
+                  <div class="name">French Public Aid</div>
+                  <div class="legend-text-bar">
+                    <div class="legend-bar" aria-hidden="true">
+                      <div class="legend-bar-fill" style="width: 12%; background: #60A5FA;"></div>
+                    </div>
+                    <span class="desc" id="legend-fr-count">—</span>
+                  </div>
+                </div>
+                <div class="legend-amount" id="legend-fr-amount">—</div>
+              </div>
+              <div class="legend-item" role="listitem" id="legend-vc">
+                <span class="legend-dot" style="background: #A855F7;" aria-hidden="true"></span>
+                <div class="legend-text">
+                  <div class="name">Venture Capital</div>
+                  <div class="legend-text-bar">
+                    <div class="legend-bar" aria-hidden="true">
+                      <div class="legend-bar-fill" style="width: 55%; background: #A855F7;"></div>
+                    </div>
+                    <span class="desc" id="legend-vc-count">—</span>
+                  </div>
+                </div>
+                <div class="legend-amount" id="legend-vc-amount">—</div>
+              </div>
+              <div class="legend-item" role="listitem" id="legend-loan">
+                <span class="legend-dot" style="background: #FBBF24;" aria-hidden="true"></span>
+                <div class="legend-text">
+                  <div class="name">Public Loans</div>
+                  <div class="legend-text-bar">
+                    <div class="legend-bar" aria-hidden="true">
+                      <div class="legend-bar-fill" style="width: 9%; background: #FBBF24;"></div>
+                    </div>
+                    <span class="desc" id="legend-loan-desc">EIB, Bpi · preferential rate</span>
+                  </div>
+                </div>
+                <div class="legend-amount" id="legend-loan-amount">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="list-toolbar">
+          <h3 class="list-toolbar-title">Recommended programmes <span class="list-toolbar-count" id="programme-count">0</span></h3>
+          <div class="list-toolbar-filters" role="group" aria-label="Filter by category">
+            <span class="list-toolbar-filter-label">Filter:</span>
+            <button type="button" class="filter-pill active" onclick="filterFunding('all', this)"
+              aria-pressed="true">All</button>
+            <button type="button" class="filter-pill" onclick="filterFunding('grant', this)"
+              aria-pressed="false">EU Grants</button>
+            <button type="button" class="filter-pill" onclick="filterFunding('public', this)" aria-pressed="false">French
+              Aid</button>
+            <button type="button" class="filter-pill" onclick="filterFunding('vc', this)"
+              aria-pressed="false">VC</button>
+            <button type="button" class="filter-pill" onclick="filterFunding('loan', this)"
+              aria-pressed="false">Loans</button>
+          </div>
+        </div>
+
+        <div class="funding-list" role="region" aria-label="Recommended programmes" id="funding-list-body">
+          <div class="table-head" role="row">
+            <div role="columnheader">Programme</div>
+            <div class="col-hide" style="text-align:right;" role="columnheader">Amount</div>
+            <div class="col-hide" style="text-align:right;" role="columnheader">Match</div>
+            <div class="col-hide" style="text-align:right;" role="columnheader">Timeline</div>
+            <div></div>
+          </div>
+          <!-- Populated dynamically by populateFundingList() -->
+          <div id="funding-rows-placeholder" style="padding:40px 0;text-align:center;color:var(--text-faint);font-size:13px;">
+            Run the AI analysis to discover your matched funding programmes.
+          </div>
+
+        </div>
+
+        <div class="actions" style="justify-content:space-between;align-items:center;">
+          <button type="button" class="btn-ghost" onclick="goToStep(3)"><span aria-hidden="true">←</span> Back to diagnostic</button>
+          <!-- Single PDF export button: opens dossier PDF if available, else browser print -->
+          <button type="button" class="btn btn-glow" id="btn-export-pdf" onclick="window.exportReport()" style="gap:10px;display:inline-flex;align-items:center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="12" y1="17" x2="12" y2="11"/>
+              <polyline points="9 14 12 17 15 14"/>
+            </svg>
+            Download Funding Report (PDF)
+          </button>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <script>
+    const TOTAL_STEPS = 4;
+    let currentStep = 1;
+
+    function updateStepper(active) {
+      for (let i = 1; i <= TOTAL_STEPS; i++) {
+        const el = document.getElementById('stepper-' + i);
+        el.classList.remove('active', 'done');
+        el.removeAttribute('aria-current');
+        if (i < active) el.classList.add('done');
+        else if (i === active) {
+          el.classList.add('active');
+          el.setAttribute('aria-current', 'step');
+        }
+      }
+    }
+
+    function goToStep(n) {
+      currentStep = n;
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      const target = document.getElementById('screen-' + n);
+      target.classList.add('active');
+
+      // Toggle flow header (stepper) — hidden on landing
+      const flowHeader = document.getElementById('flow-header');
+      const navBreadcrumb = document.getElementById('nav-breadcrumb');
+      const navDivider = document.getElementById('nav-divider');
+
+      if (n === 0) {
+        flowHeader.style.display = 'none';
+        navBreadcrumb.style.display = 'none';
+        navDivider.style.display = 'none';
+      } else {
+        flowHeader.style.display = '';
+        navBreadcrumb.style.display = '';
+        navDivider.style.display = '';
+        updateStepper(n);
+      }
+
+      if (n === 4) renderDonut();
+
+      setTimeout(() => {
+        const heading = target.querySelector('h1, h2');
+        if (heading) {
+          heading.setAttribute('tabindex', '-1');
+          heading.focus({ preventScroll: true });
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 50);
+    }
+
+    function resetDemo() {
+      goToStep(0);
+      document.getElementById('extract-1').innerHTML = '';
+      document.getElementById('extract-2').innerHTML = '';
+      document.getElementById('extract-3').innerHTML = '';
+      document.getElementById('extract-4').innerHTML = '';
+      const panel = document.querySelector('.stream-panel');
+      if (panel) panel.classList.remove('done');
+      const sc = document.getElementById('stream-check');
+      if (sc) sc.classList.remove('visible');
+      ['1', '2', '3', '4'].forEach(i => {
+        const step = document.getElementById('step-' + i);
+        step.classList.remove('done', 'active');
+        const icon = document.getElementById('icon-' + i);
+        icon.classList.remove('done', 'active');
+        icon.innerHTML = i;
+      });
+      document.getElementById('step-1').classList.add('active');
+      const ic1 = document.getElementById('icon-1');
+      ic1.classList.add('active');
+      ic1.innerHTML = '<span class="step-spinner"></span>';
+    }
+
+    function setStepDone(i) {
+      const step = document.getElementById('step-' + i);
+      step.classList.remove('active');
+      step.classList.add('done');
+      const icon = document.getElementById('icon-' + i);
+      icon.classList.remove('active');
+      icon.classList.add('done');
+      icon.innerHTML = '✓';
+    }
+
+    function setStepActive(i) {
+      const step = document.getElementById('step-' + i);
+      step.classList.add('active');
+      const icon = document.getElementById('icon-' + i);
+      icon.classList.add('active');
+      icon.innerHTML = '<span class="step-spinner"></span>';
+    }
+
+    // simulateUpload is overridden by the FundsAgent adapter script below.
+    // This stub exists only as a fallback safety net.
+    function simulateUpload() {
+      if (typeof window.startAgent === 'function') {
+        window.startAgent();
+      } else {
+        alert('Veuillez sélectionner un fichier ou utiliser un exemple.');
+      }
+    }
+
+    function setStepResult(i, html) {
+      const el = document.getElementById('extract-' + i);
+      el.innerHTML = html;
+    }
+
+    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    function filterFunding(type, btn) {
+      document.querySelectorAll('.filter-pill').forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-pressed', 'false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
+      document.querySelectorAll('.funding-row').forEach(row => {
+        if (type === 'all' || row.dataset.type === type) row.style.display = '';
+        else row.style.display = 'none';
+      });
+    }
+
+    let donutChart = null;
+    window.lastPlanData = null;
+
+    function renderDonut() {
+      if (typeof Chart === 'undefined') {
+        setTimeout(renderDonut, 200);
+        return;
+      }
+      if (donutChart) {
+        // If already rendered but we have new data, ensure it's up to date
+        if (window.lastPlanData && window.populatePlan) window.populatePlan(window.lastPlanData);
+        return;
+      }
+
+      const ctx = document.getElementById('donut');
+      if (!ctx) return;
+
+      donutChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['EU Grants', 'French Public Aid', 'Venture Capital', 'Public Loans'],
+          datasets: [{
+            data: [0, 0, 0, 0],
+            backgroundColor: ['#4ADE80', '#60A5FA', '#A855F7', '#FBBF24'],
+            borderColor: '#0E0F11',
+            borderWidth: 3,
+            hoverOffset: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '72%',
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#08090A',
+              borderColor: '#24262B',
+              borderWidth: 1,
+              titleColor: '#F0F2F5',
+              bodyColor: '#F0F2F5',
+              padding: 10,
+              displayColors: true,
+              callbacks: {
+                label: (ctx) => ' ' + (ctx.raw / 1e6).toFixed(1) + ' M€'
+              }
+
+            }
+          }
+        }
+      });
+
+      // If we already have plan data, populate it immediately after chart creation
+      if (window.lastPlanData && window.populatePlan) {
+        setTimeout(() => window.populatePlan(window.lastPlanData), 100);
+      }
+    }
+
+
+    // Keyboard shortcut to reset demo (Esc)
+    // Initial state: hide stepper since landing is shown by default
+    document.getElementById('flow-header').style.display = 'none';
+    document.getElementById('nav-breadcrumb').style.display = 'none';
+    document.getElementById('nav-divider').style.display = 'none';
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && currentStep !== 0) {
+        e.preventDefault();
+        resetDemo();
+      }
+    });
+  </script>
+
+  <!-- ====================================================================
+     FundsAgent API adapter
+     Wires this static demo to the live FastAPI backend.
+     Set window.API_BASE_URL before this script runs to point at your
+     Cloud Run URL (Lovable env var, or hardcoded after copy).
+     ==================================================================== -->
+  <script>
+    (function () {
+      "use strict";
+
+      // ---- Config ---------------------------------------------------------
+      const API_BASE_URL = (window.API_BASE_URL || "").replace(/\/$/, "")
+        || (location.hostname.endsWith("lovable.app") || location.hostname.endsWith("lovableproject.com")
+          ? "https://CHANGE-ME.run.app"          // ← edit when deploying
+          : location.origin);
+
+      // ---- State for uploaded file (blob URL for download) ----------------
+      let currentUploadedFileURL = null;   // blob URL of uploaded PDF/PPTX
+      let currentUploadedFileName = null;  // original filename
+
+      // ---- Example pitchdecks (4 sectors, used as quick-load buttons) ----
+      const EXAMPLES = {
+        neuroledger: null, // loaded via /api/upload from NeuroLedger_PitchDeck.pptx on the server
+
+        greensilicon: `GreenSilicon (SAS) — Paris-Saclay, France, founded 2023, 8 people (4 PhDs, 50% female).
+Tandem perovskite/silicon solar cells with >30% laboratory efficiency, manufactured via a low-temperature deposition process that cuts CO2 by 60% versus crystalline silicon.
+Two patents filed (FR + PCT). Currently TRL 5 (validated in lab environment), targeting TRL 7 in 24 months.
+Market: European PV module makers, 22B€ SAM, 2 letters of intent signed with Voltec Solar (FR) and Meyer Burger (DE).
+Team: CEO ex-CEA, CTO PhD with 8 publications in Nature/Science.
+Funding ask: 4.5M€ over 24 months for pilot line industrialization. We can co-finance 1.5M€ from existing equity. Open to consortium.
+Impact: 250 kt CO2/year by year 5. Aligned with Green Deal, Fit for 55, Industry 4.0.`,
+
+        medscribe: `MedScribe AI — Berlin, Germany, founded 2024, 12 people including 3 MD-PhDs.
+SaaS clinical scribe that auto-generates structured medical notes from doctor-patient conversations using on-prem fine-tuned LLM. GDPR by design.
+TRL 6, deployed in 2 university hospitals (Charité, La Pitié) on a research basis. ISO 13485 in progress. CE marking targeted Q4 2026.
+Market: 2M+ EU physicians, 8B€ SAM. 5 LOIs from German hospital networks.
+Funding ask: 3M€ over 18 months for clinical validation + CE certification. Open to consortium.
+Aligned with Cluster 1 Health priorities: digital health, ageing society, healthcare workforce relief.`,
+
+        cybernetic: `Cybernetic — Toulouse, France (Occitanie), founded 2022, 6 people (2 PhDs in cryptography).
+Post-quantum cryptography library for embedded systems. ANSSI evaluation in progress. Patents pending.
+TRL 4, prototype validated in lab. Targeting space and defence customers. Discussions with Airbus Defence and CNES.
+Market: 1.2B€ SAM. Ask: 1.8M€ over 24 months for productization + certification.
+Open to consortium. Dual-use possible.`,
+      };
+
+      // ---- State ----------------------------------------------------------
+      let currentDeck = null;       // last parsed pitchdeck JSON
+      let currentDossier = null;    // {id, url, print_url}
+      let currentMatches = [];      // matched grants list
+      let currentPlan = null;       // financing plan
+
+      // ---- Update the deck preview panel (screen 2) ----------------------
+      function updateDeckPreview(filename, meta) {
+        const nameEl = document.getElementById("deck-preview-name");
+        const metaEl = document.getElementById("deck-preview-meta");
+        if (nameEl) nameEl.textContent = filename || "—";
+        if (metaEl) metaEl.textContent = meta || "";
+      }
+
+      // ---- Open the uploaded PDF (blob URL or dossier) --------------------
+      window.ouvrirPDF = function () {
+        if (currentUploadedFileURL) {
+          window.open(currentUploadedFileURL, "_blank");
+        } else if (currentDossier) {
+          window.open(API_BASE_URL + currentDossier.url, "_blank");
+        }
+      };
+
+      // ---- Wire the main upload zone (label+input) -----------------------
+      function wireMainUploadZone() {
+        const input = document.getElementById("main-file-input");
+        const label = document.getElementById("upload-zone-label");
+        if (!input) return;
+        input.addEventListener("change", (ev) => {
+          const file = ev.target.files[0];
+          if (file) window.handleMainFileSelect(file);
+          ev.target.value = "";
+        });
+        // Allow keyboard activation of the label
+        if (label) {
+          label.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") { e.preventDefault(); input.click(); }
+          });
+        }
+      }
+
+      // ---- Handle a file selected from the main upload zone --------------
+      window.handleMainFileSelect = async function (file) {
+        if (!file) return;
+        // Store blob URL so "Voir le PDF" can open it
+        if (currentUploadedFileURL) URL.revokeObjectURL(currentUploadedFileURL);
+        currentUploadedFileURL = file.type === "application/pdf" ? URL.createObjectURL(file) : null;
+        currentUploadedFileName = file.name;
+        const label = document.getElementById("upload-zone-label");
+        if (label) {
+          const h3 = label.querySelector("h3");
+          if (h3) h3.textContent = "Extracting text\u2026";
+        }
+
+
+        const form = new FormData();
+        form.append("file", file);
+        try {
+          const resp = await fetch(API_BASE_URL + "/api/upload", { method: "POST", body: form });
+          if (!resp.ok) {
+            const err = await resp.json().catch(() => ({}));
+            throw new Error(err.detail || ("HTTP " + resp.status));
+          }
+          const data = await resp.json();
+          // Put extracted text into the hidden textarea
+          let ta = document.getElementById("fa-pitch");
+          if (!ta) {
+            // textarea not yet injected (user went straight to main upload zone)
+            ta = document.createElement("textarea");
+            ta.id = "fa-pitch";
+            ta.style.display = "none";
+            document.getElementById("screen-1")?.appendChild(ta);
+          }
+          ta.value = data.text;
+          const sz = (file.size / 1024).toFixed(0);
+          updateDeckPreview(file.name, `${sz} KB · text extracted`);
+          // Restore label and launch
+          if (label) {
+            const h3 = label.querySelector("h3, #upload-zone-title");
+            if (h3) h3.textContent = file.name + " — analysing…";
+          }
+          await startAgent();
+        } catch (e) {
+          if (label) {
+            const h3 = label.querySelector("h3, #upload-zone-title");
+            if (h3) h3.textContent = "Upload your pitch deck";
+          }
+          alert("Extraction error: " + e.message);
+        }
+      };
+
+      // ---- Step 1: inject textarea + example buttons below upload zone ---
+      function injectInput() {
+        const screen1 = document.getElementById("screen-1");
+        if (!screen1 || document.getElementById("fa-input-zone")) return;
+
+        const wrap = document.createElement("div");
+        wrap.id = "fa-input-zone";
+        wrap.style.cssText = "max-width:720px;margin:18px auto 0;";
+        wrap.innerHTML = `
+      <textarea id="fa-pitch"
+        placeholder="Collez votre pitchdeck ici (texte) — ou cliquez sur un exemple ci-dessous, ou uploadez un PDF/PPTX via la zone ci-dessus."
+        style="width:100%;min-height:180px;padding:14px;border:1px solid var(--border);border-radius:12px;
+               background:var(--bg-elev2);color:var(--text);font-family:'Manrope',sans-serif;font-size:13px;
+               line-height:1.55;resize:vertical;outline:none;"></textarea>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;align-items:center;">
+        <span style="font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.06em;margin-right:4px;">Exemples :</span>
+        <button class="btn-ghost" type="button" id="ex-neuroledger" style="padding:6px 12px;font-size:12px;border-color:rgba(168,85,247,0.4);">⭐ NeuroLedger (démo)</button>
+        <button class="btn-ghost" type="button" data-example="greensilicon" style="padding:6px 12px;font-size:12px;">GreenSilicon (climat)</button>
+        <button class="btn-ghost" type="button" data-example="medscribe" style="padding:6px 12px;font-size:12px;">MedScribe (santé)</button>
+        <button class="btn-ghost" type="button" data-example="cybernetic" style="padding:6px 12px;font-size:12px;">Cybernetic (cyber)</button>
+      </div>
+      <button id="fa-run-btn" class="btn btn-large btn-glow" type="button"
+              style="width:100%;margin-top:18px;justify-content:center;">
+        ▶ Lancer l'analyse <span aria-hidden="true">→</span>
+      </button>
+    `;
+        screen1.appendChild(wrap);
+
+        // Text examples
+        wrap.querySelectorAll("[data-example]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const key = btn.dataset.example;
+            document.getElementById("fa-pitch").value = EXAMPLES[key] || "";
+            updateDeckPreview(`${key} (exemple texte)`, "exemple intégré");
+            currentUploadedFileName = key + ".txt";
+            currentUploadedFileURL = null;
+          });
+        });
+
+        // NeuroLedger: upload the .pptx from the server via fetch
+        document.getElementById("ex-neuroledger").addEventListener("click", async () => {
+          const btn = document.getElementById("ex-neuroledger");
+          btn.textContent = "Chargement…";
+          btn.disabled = true;
+          try {
+            const fileResp = await fetch(API_BASE_URL + "/static/NeuroLedger_PitchDeck.pptx");
+            if (!fileResp.ok) throw new Error("Fichier introuvable sur le serveur");
+            const blob = await fileResp.blob();
+            const file = new File([blob], "NeuroLedger_PitchDeck.pptx", { type: blob.type });
+            const form = new FormData();
+            form.append("file", file);
+            const uploadResp = await fetch(API_BASE_URL + "/api/upload", { method: "POST", body: form });
+            if (!uploadResp.ok) {
+              const err = await uploadResp.json().catch(() => ({}));
+              throw new Error(err.detail || "HTTP " + uploadResp.status);
+            }
+            const data = await uploadResp.json();
+            document.getElementById("fa-pitch").value = data.text;
+            currentUploadedFileName = "NeuroLedger_PitchDeck.pptx";
+            currentUploadedFileURL = null;
+            updateDeckPreview("NeuroLedger_PitchDeck.pptx", `${data.chars} caractères extraits`);
+            btn.textContent = "⭐ NeuroLedger — chargé !";
+            btn.style.color = "var(--green)";
+          } catch (e) {
+            // Fallback: use embedded text
+            document.getElementById("fa-pitch").value = `NeuroLedger — Paris, France, 2024, 11 personnes dont 3 PhD en neurosciences computationnelles.
+Plateforme SaaS B2B de neurofeedback adaptatif pour la santé mentale en entreprise (burn-out, stress chronique).
+IA propriétaire (modèles LSTM) analysant les signaux EEG en temps réel via casques grand public (Muse, Dreem).
+TRL 6 — validé en clinique avec l'Hôpital Sainte-Anne (Paris). Certification CE visée T3 2025.
+Marché : 45M salariés EU exposés aux RPS, SAM 3.2B€. 8 LOI de grandes entreprises (CAC40, assureurs).
+Financement demandé : 3.5M€ sur 24 mois pour déploiement commercial + certification. Co-financement 1M€ possible.
+Alignement : Green Deal Cluster 1 Health, Horizon Europe Work Programme 2023 — Mental Health.`;
+            currentUploadedFileName = "NeuroLedger_PitchDeck.pptx";
+            currentUploadedFileURL = null;
+            updateDeckPreview("NeuroLedger_PitchDeck.pptx", "exemple de démonstration");
+            btn.textContent = "⭐ NeuroLedger (démo)";
+          }
+          btn.disabled = false;
+        });
+
+        document.getElementById("fa-run-btn").addEventListener("click", startAgent);
+
+        // Wire the main upload zone label+input
+        wireMainUploadZone();
+        // Wire the re-upload button in screen 3
+        wireReuploadInput();
+      }
+
+      // Wire the re-upload file input (screen 3)
+      function wireReuploadInput() {
+        const input = document.getElementById("reupload-file-input");
+        if (!input || input.dataset.wired) return;
+        input.dataset.wired = "1";
+        input.addEventListener("change", (ev) => {
+          const file = ev.target.files[0];
+          if (file) {
+            // Reset analysis state and re-run from screen 1 flow but skip to step 2
+            window.handleMainFileSelect(file);
+          }
+          ev.target.value = "";
+        });
+      }
+
+      // ---- simulateUpload override (main upload zone button on screen-1) -
+      window.simulateUpload = function () {
+        // The main upload zone is now a <label> — clicking it opens the file picker
+        // This function is kept as fallback for any legacy onclick calls
+        const input = document.getElementById("main-file-input");
+        if (input) input.click();
+      };
+
+      // ---- Run the agent --------------------------------------------------
+      async function startAgent(clarifications) {
+        const pitch = (document.getElementById("fa-pitch") || {}).value || "";
+        if (!pitch.trim()) {
+          alert("Please paste a pitch deck or select an example first.");
+          return;
+        }
+        // Update banner in screen 3
+        const bn = document.querySelector("#banner-filename");
+        if (bn) bn.textContent = currentUploadedFileName || "pitchdeck";
+        const bm = document.querySelector("#banner-meta");
+        if (bm) bm.textContent = "Analysis in progress…";
+
+        goToStep(2);
+        resetStreamUI();
+        setStepActive("1");
+        try {
+          await streamAgent(pitch, clarifications);
+        } catch (e) {
+          alert("Agent error: " + e.message);
+        }
+      }
+      // Expose for any onclick injected externally:
+      window.startAgent = startAgent;
+
+      function resetStreamUI() {
+        ["1", "2", "3", "4"].forEach(i => {
+          const step = document.getElementById("step-" + i);
+          step?.classList.remove("done", "active");
+          const icon = document.getElementById("icon-" + i);
+          if (icon) {
+            icon.classList.remove("done", "active");
+            icon.innerHTML = i;
+          }
+          const ex = document.getElementById("extract-" + i);
+          if (ex) ex.innerHTML = "";
+        });
+        document.querySelector(".stream-panel")?.classList.remove("done");
+        const t = document.getElementById("stream-title");
+        if (t) {
+          t.classList.remove("done");
+          t.textContent = "Analysis in progress…";
+        }
+        document.getElementById("stream-status")?.classList.remove("done");
+        document.getElementById("stream-check")?.classList.remove("visible");
+      }
+
+      async function streamAgent(pitchText, clarifications) {
+        const body = {
+          pitchdeck_text: pitchText,
+          pitchdeck_json: clarifications ? currentDeck : null,
+          clarifications: clarifications || null,
+          want_draft: true,
+        };
+        const resp = await fetch(API_BASE_URL + "/api/agent/run", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        if (!resp.ok) throw new Error("HTTP " + resp.status);
+
+        const reader = resp.body.getReader();
+        const decoder = new TextDecoder();
+        let buf = "";
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buf += decoder.decode(value, { stream: true });
+          let idx;
+          while ((idx = buf.indexOf("\n\n")) >= 0) {
+            const chunk = buf.slice(0, idx);
+            buf = buf.slice(idx + 2);
+            const line = chunk.split("\n").find(l => l.startsWith("data: "));
+            if (!line) continue;
+            try {
+              handleAgentEvent(JSON.parse(line.slice(6)));
+            } catch (_) { /* ignore parse errors on partial chunks */ }
+          }
+        }
+      }
+
+      // ---- Event mapping --------------------------------------------------
+      function handleAgentEvent(ev) {
+        switch (ev.type) {
+          case "thinking": {
+            // optional: console.log(ev.payload);
+            break;
+          }
+          case "parsed": {
+            currentDeck = ev.payload;
+            const c = ev.payload.company || {};
+            const p = ev.payload.product || {};
+            const f = ev.payload.funding_ask || {};
+            document.getElementById("extract-1").innerHTML =
+              `<div><strong>${esc(c.name || "Entreprise")}</strong> · ${esc(c.country || "?")}` +
+              (p.trl != null ? ` · TRL ${p.trl}` : "") + `</div>` +
+              `<div style="font-size:11px;color:var(--text-faint);margin-top:4px;">` +
+              `${(p.sectors || []).map(esc).join(", ") || "—"}` +
+              (f.amount_eur ? ` · demande ${(f.amount_eur / 1e6).toFixed(1)} M€` : "") +
+              `</div>`;
+            setStepDone("1");
+            setStepActive("2");
+            break;
+          }
+          case "matched": {
+            currentMatches = ev.payload.matches || [];
+            const stats = ev.payload.stats || {};
+            document.getElementById("extract-2").innerHTML =
+              `<div>${stats.eligible || 0} eligible programmes out of ${stats.total || 0}</div>` +
+              `<div style="font-size:11px;color:var(--text-faint);margin-top:4px;">` +
+              `${stats.top_tier || 0} top-tier · ` +
+              `€${((stats.expected_total_funding_eur || 0) / 1e6).toFixed(1)}M expected</div>`;
+            setStepDone("2");
+            setStepActive("3");
+            // Pre-populate downstream screens so they're ready when user navigates
+            populateDiagnostic(currentDeck, currentMatches);
+            populateFundingList(currentMatches, stats);
+            break;
+          }
+          case "combos": {
+            const top = (ev.payload && ev.payload[0]) || null;
+            document.getElementById("extract-3").innerHTML =
+              `<div>${(ev.payload || []).length} combinaisons compatibles</div>` +
+              (top ? `<div style="font-size:11px;color:var(--text-faint);margin-top:4px;">` +
+                `Top : ${(top.expected_value_eur / 1e6).toFixed(1)} M€ d'espérance · ` +
+                `${top.synergy_pairs} synergie(s)</div>` : "");
+            setStepDone("3");
+            setStepActive("4");
+            break;
+          }
+          case "plan": {
+            currentPlan = ev.payload;
+            document.getElementById("extract-4").innerHTML =
+              `<div>Dossier ${(ev.payload.total_ask_eur / 1e6).toFixed(2)} M€ structuré</div>` +
+              `<div style="font-size:11px;color:var(--text-faint);margin-top:4px;">` +
+              `Use-of-funds inferré · sources de financement allouées</div>`;
+            populatePlan(ev.payload);
+            break;
+          }
+          case "draft": {
+            // The Excellence draft is included in the dossier export — no UI in this layout
+            break;
+          }
+          case "matched_vcs": {
+            // VCs are shown in the funding list
+            const vcs = ev.payload.vcs || [];
+            vcs.forEach(vc => {
+              const list = document.querySelector(".funding-list");
+              if (!list) return;
+              const row = document.createElement("div");
+              row.className = "funding-row";
+              row.dataset.type = "vc";
+              row.setAttribute("role", "row");
+              row.innerHTML = `
+                <div class="funding-info">
+                  <div class="name">${esc(vc.name)}</div>
+                  <div class="meta">${esc(vc.country || "")}${vc.city ? " · " + esc(vc.city) : ""} · Venture Capital</div>
+                </div>
+                <div class="funding-amount col-hide">Equity<span class="sub">ticket variable</span></div>
+                <div class="match-cell col-hide">
+                  <div class="match-pct" aria-label="VC">VC</div>
+                  <div class="match-bar" aria-hidden="true"><div class="match-bar-fill" style="width:100%;background:var(--accent);"></div></div>
+                </div>
+                <div class="delay-cell col-hide">Dilutif</div>
+                <button type="button" class="funding-cta" aria-label="En savoir plus sur ${esc(vc.name)}">Détails</button>
+              `;
+              list.appendChild(row);
+            });
+            break;
+          }
+          case "dossier": {
+            currentDossier = ev.payload;
+            finishStream();
+            // Update the banner with real timing
+            const bm = document.querySelector("#banner-meta");
+            if (bm) {
+              const fname = currentUploadedFileName || "pitchdeck";
+              bm.textContent = fname + " · Analysis complete";
+            }
+            // Show "Voir le PDF" button
+            const btnVoir = document.getElementById("btn-voir-pdf");
+            if (btnVoir) btnVoir.style.display = "";
+            attachDossierButton();
+            // Auto-advance after a short delay so user sees the success state
+            setTimeout(() => goToStep(3), 1100);
+            break;
+          }
+          case "ask": {
+            // Critical fields missing — show inline form
+            renderAsk(ev.payload);
+            break;
+          }
+          case "error": {
+            alert("Erreur agent : " + ev.payload);
+            break;
+          }
+          case "done": {
+            // Already handled by 'dossier'
+            break;
+          }
+        }
+      }
+
+      function finishStream() {
+        setStepDone("4");
+        document.querySelector(".stream-panel")?.classList.add("done");
+        document.getElementById("stream-status")?.classList.add("done");
+        const t = document.getElementById("stream-title");
+        if (t) {
+          t.classList.add("done");
+          t.textContent = "Analysis complete";
+        }
+        document.getElementById("stream-check")?.classList.add("visible");
+      }
+
+      // ---- Step 3 (diagnostic) population --------------------------------
+      function populateDiagnostic(deck, matches) {
+        if (!deck) return;
+        const c = deck.company || {};
+        const p = deck.product || {};
+        const f = deck.funding_ask || {};
+        const t = deck.team || {};
+
+        // --- Banner ---
+        const bn = document.getElementById("banner-filename");
+        if (bn) bn.textContent = c.name
+          ? c.name + " · profile detected"
+          : (currentUploadedFileName || "Pitchdeck");
+        const bm = document.getElementById("banner-meta");
+        const sectorStr = (p.sectors || []).join(", ");
+        if (bm) bm.textContent = [sectorStr, p.trl ? "TRL " + p.trl : ""].filter(Boolean).join(" · ") || "Analysis complete";
+
+        // Breadcrumb nav company label
+        const navLabel = document.getElementById("nav-company-label");
+        if (navLabel && c.name) navLabel.textContent = c.name;
+
+        // Show download pitch deck button
+        const btnVoir = document.getElementById("btn-voir-pdf");
+        if (btnVoir) btnVoir.style.display = "";
+
+        // --- Profile panel (by ID, not index) ---
+        const profBody = document.getElementById("diag-profile-body");
+        if (profBody) {
+          profBody.innerHTML =
+            `<div class="row"><span class="label">Company</span><span class="value">${esc(c.name || "—")}</span></div>` +
+            `<div class="row"><span class="label">Country</span><span class="value">${esc(c.country || "—")}${c.region ? " · " + esc(c.region) : ""}</span></div>` +
+            `<div class="row"><span class="label">Sectors</span><span class="value">${(p.sectors || []).map(esc).join(", ") || "—"}</span></div>` +
+            `<div class="row"><span class="label">TRL</span><span class="value">${p.trl != null ? p.trl : "—"}</span></div>` +
+            `<div class="row"><span class="label">Team</span><span class="value">${t.size != null ? t.size + " people" : "—"}${t.phds ? " · " + t.phds + " PhDs" : ""}</span></div>` +
+            `<div class="row"><span class="label">Funding ask</span><span class="value" style="color:#C084FC;">${f.amount_eur ? (f.amount_eur / 1e6).toFixed(2) + " M€" : "—"}</span></div>` +
+            `<div class="row"><span class="label">Co-financing</span><span class="value">${f.co_financing_capacity_eur ? (f.co_financing_capacity_eur / 1e6).toFixed(2) + " M€" : "—"}</span></div>` +
+            `<div class="row"><span class="label">SME</span><span class="value">${c.sme === true ? "Yes" : c.sme === false ? "No" : "—"}</span></div>`;
+        }
+
+        // --- Tags panel ---
+        const tagsBody = document.getElementById("diag-tags-body");
+        if (tagsBody) {
+          const sectorsHtml = (p.sectors || []).map(s =>
+            `<span class="tag" style="background:var(--blue-soft);border-color:rgba(96,165,250,0.3);color:var(--blue);">${esc(s)}</span>`
+          ).join("") || `<span style="font-size:12px;color:var(--text-faint);">—</span>`;
+          const greenHtml = ((deck.impact || {}).green_deal_alignment || []).map(s =>
+            `<span class="tag" style="background:var(--green-soft);border-color:rgba(74,222,128,0.3);color:var(--green);">${esc(s)}</span>`
+          ).join("") || `<span style="font-size:12px;color:var(--text-faint);">None detected</span>`;
+          const ipTag = p.ip_status
+            ? `<span class="tag" style="background:var(--accent-soft);border-color:var(--accent-border);color:#C084FC;">${esc(p.ip_status)}</span>`
+            : `<span style="font-size:12px;color:var(--text-faint);">Not specified</span>`;
+          tagsBody.innerHTML =
+            `<div class="tag-group"><div class="tag-group-label">Sectors</div>${sectorsHtml}</div>` +
+            `<div class="tag-group"><div class="tag-group-label">Green Deal alignment</div>${greenHtml}</div>` +
+            `<div class="tag-group"><div class="tag-group-label">Intellectual property</div>${ipTag}</div>`;
+        }
+
+        // --- Strengths: top 3 eligible matches ---
+        const strengthsBody = document.getElementById("diag-strengths-body");
+        if (strengthsBody) {
+          const top3 = (matches || [])
+            .filter(m => m.eligible)
+            .sort((a, b) => b.blended_probability_pct - a.blended_probability_pct)
+            .slice(0, 3);
+          if (top3.length) {
+            strengthsBody.innerHTML = top3.map(m =>
+              `<li class="strength-row">
+                <span class="strength-icon check" aria-hidden="true">✓</span>
+                <div>
+                  <div class="strength-text">${esc(m.grant_name)}</div>
+                  <div class="strength-sub">${m.blended_probability_pct.toFixed(0)}% match · fit ${m.fit_total.toFixed(0)}/100</div>
+                </div>
+              </li>`
+            ).join("");
+          } else {
+            strengthsBody.innerHTML = `<li style="color:var(--text-faint);font-size:13px;padding:8px 0;">No eligible match yet — try adding more detail to your deck.</li>`;
+          }
+        }
+
+        // --- Warnings: programmes with alerts ---
+        const warningsBody = document.getElementById("diag-warnings-body");
+        if (warningsBody) {
+          const warns = (matches || []).filter(m => m.warnings && m.warnings.length).slice(0, 3);
+          if (warns.length) {
+            warningsBody.innerHTML = warns.map(m =>
+              `<li class="strength-row">
+                <span class="strength-icon warn-icon" aria-hidden="true">!</span>
+                <div>
+                  <div class="strength-text">${esc(m.grant_name)}</div>
+                  <div class="strength-sub">${esc(m.warnings[0] || "")}</div>
+                </div>
+              </li>`
+            ).join("");
+            // Show AI insight
+            const ins = document.getElementById("diag-insight");
+            const insText = document.getElementById("diag-insight-text");
+            if (ins && insText && warns.length) {
+              const gain = warns.length;
+              insText.innerHTML = `Addressing these ${gain} point${gain > 1 ? "s" : ""} could unlock additional programmes and significantly improve your eligibility score.`;
+              ins.style.display = "";
+            }
+          } else {
+            warningsBody.innerHTML = `<li style="color:var(--text-faint);font-size:13px;padding:8px 0;">No major eligibility blockers detected.</li>`;
+          }
+        }
+      }
+
+      // ---- Step 4 (financing list) population ----------------------------
+      function levelToType(level) {
+        if (level === "EU") return "grant";
+        if (String(level || "").startsWith("national_")) return "public";
+        if (String(level || "").startsWith("regional_")) return "public";
+        return "grant";
+      }
+
+      function populateFundingList(matches, stats) {
+        const list = document.querySelector(".funding-list");
+        if (!list) return;
+        list.querySelectorAll(".funding-row").forEach(r => r.remove());
+
+        const eligible = (matches || [])
+          .filter(m => m.eligible)
+          .sort((a, b) => b.blended_probability_pct - a.blended_probability_pct)
+          .slice(0, 12);
+
+        eligible.forEach(m => {
+          const row = document.createElement("div");
+          row.className = "funding-row";
+          row.dataset.type = levelToType(m.level);
+          row.setAttribute("role", "row");
+          const matchCls = m.blended_probability_pct >= 60 ? "" : "medium";
+          const dl = m.next_deadline ? `J-${m.days_until_deadline}` : "rolling";
+          const fmin = m.funding_range_eur[0] / 1e6;
+          const fmax = m.funding_range_eur[1] / 1e6;
+          const amount = `${fmin.toFixed(1)}–${fmax.toFixed(1)} M€`;
+          row.innerHTML = `
+        <div class="funding-info">
+          <div class="name">${esc(m.grant_name)}</div>
+          <div class="meta">${esc(m.level)} · ${esc(m.headline || "")}</div>
+        </div>
+        <div class="funding-amount col-hide">${amount}<span class="sub">subvention</span></div>
+        <div class="match-cell col-hide">
+          <div class="match-pct ${matchCls}" aria-label="Match ${m.blended_probability_pct.toFixed(0)}%">${m.blended_probability_pct.toFixed(0)}%</div>
+          <div class="match-bar" aria-hidden="true"><div class="match-bar-fill ${matchCls}" style="width:${m.blended_probability_pct.toFixed(0)}%;"></div></div>
+        </div>
+        <div class="delay-cell col-hide">${dl}</div>
+        <a class="funding-cta" href="${esc(m.url || "#")}" target="_blank" rel="noopener" aria-label="Page programme ${esc(m.grant_name)}">Programme</a>
+      `;
+          list.appendChild(row);
+        });
+
+        const cnt = document.getElementById("programme-count");
+        if (cnt) cnt.textContent = eligible.length;
+        // Show placeholder message if no results
+        const ph = document.getElementById("funding-rows-placeholder");
+        if (ph) ph.style.display = eligible.length > 0 ? "none" : "";
+      }
+
+      // ---- Step 4 (donut + funding stack) replacement --------------------
+      window.populatePlan = populatePlan;
+      function populatePlan(plan) {
+        if (!plan) return;
+        window.lastPlanData = plan;
+
+        // Update donut chart with use-of-funds breakdown
+        if (typeof donutChart !== "undefined" && donutChart) {
+          const uof = plan.use_of_funds || {};
+          const labels = [];
+          const data = [];
+          const colors = [];
+          for (const v of Object.values(uof)) {
+            labels.push(v.label);
+            data.push(v.eur);
+            colors.push(v.color || "#A855F7");
+          }
+          donutChart.data.labels = labels;
+          donutChart.data.datasets[0].data = data;
+          donutChart.data.datasets[0].backgroundColor = colors;
+          donutChart.update();
+        }
+
+        // Center label = total ask
+        const cv = document.querySelector(".donut-center-value");
+        if (cv) cv.innerHTML = `${(plan.total_ask_eur / 1e6).toFixed(1)}<small>M€</small>`;
+        const cs = document.querySelector(".donut-center-sub");
+        if (cs) {
+          const grants = (plan.funding_sources || []).find(s => /grant/i.test(s.label || ""));
+          const grantsEur = grants ? grants.eur : 0;
+          cs.innerHTML = `dont <strong>${(grantsEur / 1e6).toFixed(1)} M€</strong> non-dilutif`;
+        }
+
+        // Replace static legend with use-of-funds breakdown
+        const legend = document.querySelector(".donut-legend");
+        if (legend) {
+          const total = plan.total_ask_eur || 1;
+          legend.innerHTML = "";
+          Object.values(plan.use_of_funds || {}).forEach(v => {
+            const pct = (v.eur / total) * 100;
+            const item = document.createElement("div");
+            item.className = "legend-item";
+            item.setAttribute("role", "listitem");
+            item.innerHTML = `
+          <span class="legend-dot" style="background:${esc(v.color)};" aria-hidden="true"></span>
+          <div class="legend-text">
+            <div class="name">${esc(v.label)}</div>
+            <div class="legend-text-bar">
+              <div class="legend-bar" aria-hidden="true"><div class="legend-bar-fill" style="width:${pct.toFixed(0)}%;background:${esc(v.color)};"></div></div>
+              <span class="desc">${v.pct.toFixed(0)}% du projet</span>
+            </div>
+          </div>
+          <div class="legend-amount">${(v.eur / 1e3).toFixed(0)} k€<span class="pct">${v.pct.toFixed(0)}%</span></div>
+        `;
+            legend.appendChild(item);
+          });
+        }
+      }
+
+      // ---- Dossier PDF download button -----------------------------------
+      function attachDossierButton() {
+        if (!currentDossier || document.getElementById("fa-dossier-btn")) return;
+        const screen4 = document.getElementById("screen-4");
+        if (!screen4) return;
+        const wrap = document.createElement("div");
+        wrap.style.cssText = "display:flex;gap:12px;justify-content:center;margin:24px 0;flex-wrap:wrap;";
+        const url = API_BASE_URL + currentDossier.print_url;
+        const open = API_BASE_URL + currentDossier.url;
+        wrap.innerHTML = `
+      <a id="fa-dossier-btn" class="btn btn-large btn-glow" href="${esc(url)}" target="_blank" rel="noopener"
+         style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;justify-content:center;">
+        📄 Télécharger le dossier PDF
+      </a>
+      <a class="btn-ghost btn-large" href="${esc(open)}" target="_blank" rel="noopener"
+         style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;">
+        🔗 Ouvrir le dossier
+      </a>
+      <button type="button" class="btn-ghost btn-large" onclick="navigator.clipboard.writeText('${esc(open)}').then(()=>{this.textContent='Lien copié ✓';setTimeout(()=>{this.textContent='📋 Copier le lien';},1500);})"
+              style="display:inline-flex;align-items:center;gap:8px;">
+        📋 Copier le lien
+      </button>
+    `;
+        screen4.appendChild(wrap);
+      }
+
+      // ---- Export Funding Report as PDF ----------------------------------
+      window.exportReport = function () {
+        const btn = document.getElementById("btn-export-pdf");
+        // Priority 1: dossier print URL from the backend
+        if (currentDossier && currentDossier.print_url) {
+          window.open(API_BASE_URL + currentDossier.print_url, "_blank");
+          return;
+        }
+        // Priority 2: dossier regular URL
+        if (currentDossier && currentDossier.url) {
+          window.open(API_BASE_URL + currentDossier.url, "_blank");
+          return;
+        }
+        // Fallback: browser print with @media print CSS (shows screens 3+4)
+        if (btn) { btn.textContent = "Preparing PDF…"; btn.disabled = true; }
+        const prevStep = currentStep;
+        // Temporarily show screens 3 and 4 for print
+        document.querySelectorAll(".screen").forEach(s => { s._prevDisplay = s.style.display; s.style.display = "none"; });
+        const s3 = document.getElementById("screen-3");
+        const s4 = document.getElementById("screen-4");
+        if (s3) s3.style.display = "block";
+        if (s4) s4.style.display = "block";
+        setTimeout(() => {
+          window.print();
+          // Restore display after print dialog
+          setTimeout(() => {
+            document.querySelectorAll(".screen").forEach(s => { s.style.display = s._prevDisplay || ""; });
+            goToStep(prevStep);
+            if (btn) { btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="17" x2="12" y2="11"/><polyline points="9 14 12 17 15 14"/></svg> Download Funding Report (PDF)'; btn.disabled = false; }
+          }, 500);
+        }, 300);
+      };
+
+      // ---- Ask flow (critical fields missing) ----------------------------
+      function renderAsk(payload) {
+        const screen2 = document.getElementById("screen-2");
+        let host = document.getElementById("fa-ask");
+        if (!host) {
+          host = document.createElement("div");
+          host.id = "fa-ask";
+          host.style.cssText = "max-width:680px;margin:24px auto 0;padding:18px;background:var(--bg-elev2);border:1px solid var(--accent-border);border-radius:12px;";
+          screen2.appendChild(host);
+        }
+        const fieldsHtml = (payload.questions || []).map(q => `
+      <div style="margin:10px 0;">
+        <label style="display:block;font-size:12px;color:var(--text-muted);margin-bottom:4px;">${esc(q.question)}</label>
+        <input type="text" data-field="${esc(q.field)}" placeholder="${esc(q.field)}"
+               style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;
+                      background:var(--bg-elev3);color:var(--text);font-family:inherit;font-size:13px;">
+      </div>
+    `).join("");
+        host.innerHTML = `
+      <div style="font-size:14px;font-weight:600;color:var(--accent);margin-bottom:6px;">⚠ Quelques détails manquent pour un ranking précis</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">${esc(payload.rationale || "")}</div>
+      ${fieldsHtml}
+      <button id="fa-ask-submit" class="btn btn-glow" type="button" style="margin-top:8px;">Re-lancer avec ces réponses</button>
+    `;
+        document.getElementById("fa-ask-submit").addEventListener("click", () => {
+          const clarif = {};
+          host.querySelectorAll("input[data-field]").forEach(inp => {
+            const field = inp.dataset.field;
+            let v = inp.value.trim();
+            if (!v) return;
+            if (field.endsWith(".amount_eur")) {
+              v = parseFloat(v.replace(/[^0-9.]/g, ""));
+              if (v < 1000) v *= 1e6;
+            } else if (field.endsWith(".trl")) {
+              v = parseInt(v, 10);
+            }
+            const parts = field.split(".");
+            let cur = clarif;
+            for (let i = 0; i < parts.length - 1; i++) {
+              cur[parts[i]] = cur[parts[i]] || {};
+              cur = cur[parts[i]];
+            }
+            cur[parts[parts.length - 1]] = v;
+          });
+          host.remove();
+          startAgent(clarif);
+        });
+      }
+
+      // ---- Helpers --------------------------------------------------------
+      function esc(s) {
+        return String(s == null ? "" : s).replace(/[&<>"']/g, c => (
+          { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
+        ));
+      }
+
+      // ---- Boot -----------------------------------------------------------
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", () => { injectInput(); wireMainUploadZone(); });
+      } else {
+        injectInput();
+        wireMainUploadZone();
+      }
+
+      // Health probe — surface a quiet warning if the API is unreachable so the
+      // demoer notices BEFORE clicking Run agent on stage.
+      fetch(API_BASE_URL + "/api/health")
+        .then(r => r.ok ? r.json() : Promise.reject(r.status))
+        .then(j => {
+          console.log("[fundsagent] connected to", API_BASE_URL, j);
+          if (!j.cerebras_configured) {
+            console.warn("[fundsagent] CEREBRAS_API_KEY is not set on the backend — heuristic fallback active");
+          }
+        })
+        .catch(err => {
+          console.warn("[fundsagent] backend at " + API_BASE_URL + " is unreachable:", err);
+        });
+    })();
+  </script>
+</body>
+
+</html>

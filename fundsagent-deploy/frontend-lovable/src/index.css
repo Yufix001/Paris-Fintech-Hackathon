@@ -1,0 +1,292 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* SubventionAI — dark-only design system. All colors HSL. */
+
+@layer base {
+  :root {
+    /* Surfaces */
+    --background: 220 6% 4%;            /* #08090A */
+    --surface: 220 8% 6%;               /* #0E0F11 */
+    --surface-elevated: 220 9% 9%;      /* #131517 */
+    --surface-elevated-2: 220 8% 12%;   /* #1A1C1F */
+
+    /* Foreground */
+    --foreground: 220 14% 95%;          /* #F0F2F5 */
+    --muted-foreground: 218 8% 64%;     /* #9DA3AC */
+    --text-faint: 220 6% 47%;           /* #6E7480 */
+
+    /* Borders */
+    --border: 222 8% 16%;               /* #24262B */
+    --border-soft: 222 9% 12%;          /* #1A1C20 */
+    --input: 222 8% 16%;
+    --ring: 271 81% 56%;
+
+    /* Cards / popovers map to surface */
+    --card: 220 8% 6%;
+    --card-foreground: 220 14% 95%;
+    --popover: 220 9% 9%;
+    --popover-foreground: 220 14% 95%;
+
+    /* Primary = violet mid-stop */
+    --primary: 271 91% 65%;             /* #A855F7 */
+    --primary-foreground: 220 14% 98%;
+
+    --secondary: 220 9% 12%;
+    --secondary-foreground: 220 14% 95%;
+
+    --muted: 220 9% 9%;
+
+    --accent: 271 91% 65%;
+    --accent-foreground: 220 14% 98%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 220 14% 98%;
+
+    --success: 142 76% 58%;             /* #4ADE80 */
+    --warning: 43 96% 56%;              /* #FBBF24 */
+
+    --radius: 0.875rem;                 /* 14px — matches reference */
+
+    /* Brand gradient */
+    --gradient-violet: linear-gradient(135deg, #6D28D9 0%, #A855F7 50%, #D946EF 100%);
+    --gradient-violet-hover: linear-gradient(135deg, #7C3AED 0%, #B560F8 50%, #E057F0 100%);
+
+    /* Accent translucents (match ref) */
+    --accent-soft: hsl(271 91% 65% / 0.14);
+    --accent-border: hsl(271 91% 65% / 0.35);
+
+    /* Shadows / glows */
+    --shadow-glow: 0 0 60px -10px hsl(271 91% 65% / 0.55);
+    --shadow-glow-strong: 0 0 80px -10px hsl(292 84% 60% / 0.7);
+    --shadow-elevated: 0 30px 80px -30px hsl(271 91% 30% / 0.5),
+                       0 10px 30px -10px hsl(220 50% 0% / 0.6);
+
+    /* Hero radial bg (replicates reference exactly) */
+    --hero-radial:
+      radial-gradient(ellipse at 75% 30%, rgba(168,85,247,0.18) 0%, transparent 55%),
+      radial-gradient(ellipse at 25% 70%, rgba(109,40,217,0.10) 0%, transparent 50%);
+  }
+
+  /* Force dark theme — no light variant exposed */
+  html { color-scheme: dark; scroll-behavior: smooth; }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html, body {
+    @apply bg-background text-foreground;
+    font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+    font-feature-settings: 'tnum' 1, 'ss01' 1;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: hsl(271 91% 65% / 0.35);
+    color: hsl(var(--foreground));
+  }
+}
+
+@layer components {
+  .text-gradient-violet {
+    background: var(--gradient-violet);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  .bg-gradient-violet {
+    background: var(--gradient-violet);
+  }
+  .bg-gradient-violet:hover {
+    background: var(--gradient-violet-hover);
+  }
+
+  .bg-hero-radial {
+    background-image: var(--hero-radial);
+  }
+
+  /* Subtle grid overlay (carreaux) for hero */
+  .bg-hero-grid::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(to right, hsl(var(--foreground) / 0.018) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--foreground) / 0.018) 1px, transparent 1px);
+    background-size: 96px 96px;
+    -webkit-mask-image: radial-gradient(ellipse 75% 55% at 50% 40%, hsl(0 0% 0%) 30%, transparent 100%);
+    mask-image: radial-gradient(ellipse 75% 55% at 50% 40%, hsl(0 0% 0%) 30%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Primary CTA — pulsing glow + shimmer sweep (matches reference) */
+  .btn-glow {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background: var(--gradient-violet);
+    color: hsl(var(--primary-foreground));
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.15) inset,
+      0 0 0 1px rgba(168,85,247,0.4),
+      0 8px 24px rgba(168,85,247,0.45),
+      0 0 40px rgba(168,85,247,0.25);
+    animation: btn-glow-pulse 2.8s ease-in-out infinite;
+    transition: transform 0.15s ease;
+  }
+  .btn-glow:hover {
+    transform: translateY(-1px);
+    animation-play-state: paused;
+  }
+  .btn-glow > * {
+    position: relative;
+    z-index: 1;
+  }
+  .btn-glow::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 30%;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255,255,255,0.28) 50%,
+      transparent 100%
+    );
+    animation: btn-shimmer 2.8s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Standard solid button (gradient violet, no glow loop) */
+  .btn-violet {
+    background: var(--gradient-violet);
+    color: hsl(var(--primary-foreground));
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.1) inset,
+      0 4px 12px rgba(168,85,247,0.25);
+    transition: all 0.15s;
+  }
+  .btn-violet:hover {
+    background: var(--gradient-violet-hover);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.15) inset,
+      0 6px 20px rgba(168,85,247,0.4);
+    transform: translateY(-1px);
+  }
+
+  /* Ghost button */
+  .btn-ghost-soft {
+    background: hsl(var(--surface));
+    color: hsl(var(--foreground));
+    border: 1px solid hsl(var(--border));
+    transition: all 0.15s;
+  }
+  .btn-ghost-soft:hover {
+    background: hsl(var(--surface-elevated));
+    border-color: hsl(220 6% 20%);
+  }
+
+  /* Upload zone hover — violet border, no outer glow */
+  .upload-zone:hover:not([data-dragging]) {
+    border-color: hsl(var(--accent)) !important;
+    border-style: solid !important;
+    background: hsl(var(--surface-elevated-2)) !important;
+  }
+  .upload-zone:focus-visible {
+    outline: none;
+    border-color: hsl(var(--accent)) !important;
+    border-style: solid !important;
+  }
+}
+
+@layer utilities {
+  .font-serif-italic {
+    font-family: 'Instrument Serif', ui-serif, Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+  .text-faint {
+    color: hsl(var(--text-faint));
+  }
+}
+
+@keyframes btn-glow-pulse {
+  0%, 100% {
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.15) inset,
+      0 0 0 1px rgba(168,85,247,0.4),
+      0 8px 24px rgba(168,85,247,0.45),
+      0 0 40px rgba(168,85,247,0.25);
+  }
+  50% {
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.2) inset,
+      0 0 0 1px rgba(217,70,239,0.55),
+      0 10px 32px rgba(217,70,239,0.55),
+      0 0 60px rgba(217,70,239,0.35);
+  }
+}
+
+@keyframes btn-shimmer {
+  0%   { transform: translateX(-150%); }
+  60%  { transform: translateX(450%); }
+  100% { transform: translateX(450%); }
+}
+
+@keyframes doc-float {
+  0%, 100% { transform: translateX(-42%) rotateX(38deg) rotateY(-22deg) rotateZ(0deg) translateZ(0); }
+  50%      { transform: translateX(-42%) rotateX(38deg) rotateY(-22deg) rotateZ(0deg) translateZ(12px); }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes stepper-shimmer {
+  0%   { transform: translateX(200%); }
+  100% { transform: translateX(500%); }
+}
+
+@keyframes deck-scan {
+  0%, 100% { top: 5%; }
+  50%      { top: 95%; }
+}
+
+@keyframes stream-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(168,85,247,0.5); }
+  70%  { box-shadow: 0 0 0 8px rgba(168,85,247,0); }
+  100% { box-shadow: 0 0 0 0 rgba(168,85,247,0); }
+}
+
+@keyframes stream-success-flash {
+  0%   { box-shadow: 0 0 0 0 rgba(74,222,128,0); }
+  40%  { box-shadow: 0 0 0 8px rgba(74,222,128,0.18), 0 8px 32px rgba(74,222,128,0.15); }
+  100% { box-shadow: 0 0 0 1px rgba(74,222,128,0.15), 0 8px 32px rgba(74,222,128,0.08); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-glow { animation: none; }
+  .btn-glow::after { display: none; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

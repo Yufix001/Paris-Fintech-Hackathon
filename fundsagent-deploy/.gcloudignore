@@ -1,0 +1,53 @@
+# .gcloudignore — what gcloud excludes when uploading source for `--source .`
+# Keep the upload tiny: only the runtime needs to ship.
+
+# Docs / spec docs (read by humans, not by the running service)
+*.md
+!README.md
+docs/
+
+# Tests + dev artifacts (Slice S11 will run them in CI, not in the runtime image)
+tests/
+.github/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Python build artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.python-version
+.venv/
+venv/
+env/
+*.egg-info/
+
+# Cowork plugin (different deliverable, frozen)
+*.plugin
+grant-matcher/
+INSTALL.md
+
+# Generated demo outputs
+outputs/
+dossier.html
+report.json
+report.md
+sedia_open_calls.json
+
+# Editor / OS noise
+.vscode/
+.idea/
+.claude/
+.DS_Store
+*.swp
+*~
+
+# Secrets — never ship credentials, set them via gcloud --set-env-vars or
+# Secret Manager mounted at runtime
+.env
+.env.*
+*.json.local
+firebase-credentials.json
+service-account*.json
